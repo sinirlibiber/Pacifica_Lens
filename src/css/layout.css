@@ -1,0 +1,56 @@
+/* ═══════════════════════════════════════════
+   HEADER — Arctic Frost
+═══════════════════════════════════════════ */
+header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;height:56px;gap:16px;
+}
+.logo{display:flex;align-items:center;gap:4px;text-decoration:none;flex-shrink:0}
+.logo-n{
+  font-size:15px;font-weight:800;letter-spacing:.04em;
+  color:var(--tx);white-space:nowrap;
+  background:linear-gradient(135deg,#0f172a 0%,#3b82f6 55%,#6366f1 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.logo-n em{font-style:normal;letter-spacing:.04em}
+
+/* Tabs */
+.tabs{display:flex;align-items:center;gap:2px;flex:1;justify-content:center}
+.tab{
+  padding:6px 16px;font-size:12px;font-weight:500;letter-spacing:.01em;
+  color:var(--tx2);cursor:pointer;
+  border-radius:var(--r1);border:1px solid transparent;
+  transition:all .18s;white-space:nowrap;
+}
+.tab:hover{color:var(--tx);background:var(--bg3)}
+.tab.on{
+  color:var(--ac);background:rgba(59,130,246,.06);
+  border-color:rgba(59,130,246,.2);
+  font-weight:600;
+}
+
+/* Header right */
+.hdr-r{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.ws-pill{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(22,163,74,.06);
+  border:1px solid rgba(22,163,74,.2);
+  border-radius:20px;padding:4px 11px;
+  font-family:var(--mono);font-size:10px;color:var(--gn);
+  font-weight:500;letter-spacing:.01em;
+}
+.ws-dot{width:6px;height:6px;border-radius:50%;background:var(--gn)}
+.ws-dot.pulsing{animation:pulse 1.4s ease-in-out infinite}
+.ws-dot.off{background:var(--tx3)}
+@keyframes pulse{
+  0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(22,163,74,.3)}
+  50%{opacity:.5;box-shadow:0 0 0 4px rgba(22,163,74,0)}
+}
+.ts-lbl{font-family:var(--mono);font-size:10px;color:var(--tx3);font-weight:400}
+
+/* ═══════════════════════════════════════════

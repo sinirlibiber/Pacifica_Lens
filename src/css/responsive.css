@@ -1,0 +1,38 @@
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media(max-width:1280px){
+  .stats5{grid-template-columns:repeat(3,1fr)}
+  .mk-grid{grid-template-columns:repeat(4,1fr)}
+  .row3{grid-template-columns:1fr 1fr}
+  .an-chart-row{grid-template-columns:1fr}
+  .an-grid3{grid-template-columns:1fr 1fr}
+  .wallet-bottom-grid{grid-template-columns:1fr 1fr}
+  .liq-heatmap-wrap{grid-template-columns:1fr}
+  .liq-main-grid{grid-template-columns:1fr}
+  .liq-feed-wrap{grid-template-columns:1fr}
+  .liq-chart-row{grid-template-columns:1fr}
+  /* liq-kpi-strip stays 4-col — handled by dashboard.css */
+  /* an-kpi-row stays 4-col — handled by dashboard.css */
+  /* ai-layout stays 2-col — handled by dashboard.css */
+  /* ob-layout stays 2-col — handled by dashboard.css */
+}
+@media(max-width:768px){
+  header{padding:0 16px;height:52px}
+  main{padding:14px 16px}
+  .stats5{grid-template-columns:repeat(2,1fr)}
+  .mk-grid{grid-template-columns:repeat(2,1fr)}
+  .row3{grid-template-columns:1fr}
+  .tabs{gap:0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 4px}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{padding:5px 11px;font-size:10px;flex-shrink:0}
+  .wallet-stats{grid-template-columns:repeat(2,1fr)}
+  .wallet-ext-grid{grid-template-columns:repeat(2,1fr)}
+  .whale-layout{grid-template-columns:1fr}
+  .wallet-layout{grid-template-columns:1fr}
+  .arb-layout{grid-template-columns:1fr}
+  .an-grid2{grid-template-columns:1fr}
+  .liq-period-grid{grid-template-columns:1fr}
+  .wallet-bottom-grid{grid-template-columns:1fr}
+}
+
+/* ═══════════════════════════════════════════

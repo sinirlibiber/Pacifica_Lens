@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pacifica Lens — Live Trading Intelligence</title>
+<meta name="description" content="Real-time WebSocket analytics, wallet position tracker, AI market intelligence and funding arbitrage for Pacifica perpetuals.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPGRlZnM+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImJnIiBjeD0iNTAlIiBjeT0iNTAlIiByPSI1MCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMGQxYjJhIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzA1MTExZCIvPgogICAgPC9yYWRpYWxHcmFkaWVudD4KICA8L2RlZnM+CiAgPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMzAiIGZpbGw9InVybCgjYmcpIi8+CiAgPGcgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMzhiZGY4IiBzdHJva2Utd2lkdGg9IjIuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIj4KICAgIDxwYXRoIGQ9Ik0gMTgsMjAgUSAzMiw4IDQ2LDIwIFEgNTQsMjggNDYsMzgiIG9wYWNpdHk9IjAuOSIvPgogICAgPHBhdGggZD0iTSAyMCwyOCBRIDMyLDE4IDQyLDI4IFEgNDgsMzQgNDIsNDIiIG9wYWNpdHk9IjAuOCIvPgogICAgPHBhdGggZD0iTSAyNCwzNCBRIDMyLDI2IDQwLDM0IFEgNDQsMzggNDAsNDQiIG9wYWNpdHk9IjAuNyIvPgogICAgPGNpcmNsZSBjeD0iMzIiIGN5PSI0NiIgcj0iMiIgZmlsbD0iIzM4YmRmOCIgc3Ryb2tlPSJub25lIiBvcGFjaXR5PSIwLjkiLz4KICA8L2c+CiAgPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMjkiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzM4YmRmODIwIiBzdHJva2Utd2lkdGg9IjEiLz4KPC9zdmc+">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- CSS -->
+<link rel="stylesheet" href="src/css/variables.css">
+<link rel="stylesheet" href="src/css/layout.css">
+<link rel="stylesheet" href="src/css/components.css">
+<link rel="stylesheet" href="src/css/toast.css">
+<link rel="stylesheet" href="src/css/responsive.css">
+<link rel="stylesheet" href="src/css/theme.css">
+<link rel="stylesheet" href="src/css/pages/wallet.css">
+<link rel="stylesheet" href="src/css/pages/ai.css">
+<link rel="stylesheet" href="src/css/pages/arbitrage.css">
+<link rel="stylesheet" href="src/css/pages/analytics.css">
+<link rel="stylesheet" href="src/css/pages/whale.css">
+<link rel="stylesheet" href="src/css/pages/orderbook.css">
+<link rel="stylesheet" href="src/css/pages/liquidation.css">
+<link rel="stylesheet" href="src/css/dashboard.css">
+</head>
+<body>
+<div class="amb"></div>
+<div class="grid-bg"></div>
+<div class="noise"></div>
+
+<!-- ═══ HEADER — 5 tabs instead of 9 ═══ -->
+<header>
+  <a class="logo" href="#">
+    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCIgd2lkdGg9IjUyIiBoZWlnaHQ9IjUyIj4KICA8ZGVmcz4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibGcxIiBjeD0iNDAlIiBjeT0iMzUlIiByPSI2NSUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjN2RkM2ZjIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iNjAlIiBzdG9wLWNvbG9yPSIjMzhiZGY4Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBlYTVlOSIvPgogICAgPC9yYWRpYWxHcmFkaWVudD4KICA8L2RlZnM+CiAgPGcgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICAgIDxwYXRoIGQ9Ik0gMTQsMjIgUSAzMiw2IDUwLDIyIFEgNjAsMzIgNTAsNDQiIHN0cm9rZT0idXJsKCNsZzEpIiBzdHJva2Utd2lkdGg9IjMuNSIgb3BhY2l0eT0iMC45NSIvPgogICAgPHBhdGggZD0iTSAxNywzMCBRIDMyLDE2IDQ2LDMwIFEgNTQsMzggNDYsNDgiIHN0cm9rZT0iIzM4YmRmOCIgc3Ryb2tlLXdpZHRoPSIzIiBvcGFjaXR5PSIwLjgyIi8+CiAgICA8cGF0aCBkPSJNIDIyLDM3IFEgMzIsMjYgNDIsMzcgUSA0OCw0MyA0Miw1MSIgc3Ryb2tlPSIjN2RkM2ZjIiBzdHJva2Utd2lkdGg9IjIuNSIgb3BhY2l0eT0iMC42OCIvPgogICAgPGNpcmNsZSBjeD0iMzIiIGN5PSI1MiIgcj0iMyIgZmlsbD0iIzM4YmRmOCIgb3BhY2l0eT0iMC45Ii8+CiAgICA8Y2lyY2xlIGN4PSIzMiIgY3k9IjUyIiByPSI1IiBmaWxsPSIjMzhiZGY4MjAiIG9wYWNpdHk9IjAuNiIvPgogIDwvZz4KPC9zdmc+" width="52" height="52" alt="Pacifica" style="flex-shrink:0;object-fit:contain">
+    <div class="logo-n">PACIFICA<em>LENS</em></div>
+  </a>
+
+  <nav class="tabs">
+    <div class="tab on" data-tab="overview">Overview</div>
+    <div class="tab" data-tab="markets">Intelligence</div>
+    <div class="tab has-dropdown" data-tab="trading">
+      Trading
+      <div class="tab-dropdown">
+        <div class="tab-drop-item" data-subtab="wallet">Wallet Tracker</div>
+        <div class="tab-drop-item" data-subtab="ai">AI Assistant</div>
+        <div class="tab-drop-item" data-subtab="arbitrage">Arbitrage Bot</div>
+      </div>
+    </div>
+    <div class="tab has-dropdown" data-tab="analytics">
+      Analytics
+      <div class="tab-dropdown">
+        <div class="tab-drop-item" data-subtab="analytics-main">Platform Analytics</div>
+        <div class="tab-drop-item" data-subtab="orderbook">Orderbook</div>
+        <div class="tab-drop-item" data-subtab="whale">Whale Watcher</div>
+      </div>
+    </div>
+    <div class="tab" data-tab="liquidation">Liquidations</div>
+  </nav>
+
+  <div class="hdr-r">
+    <!-- Portfolio Mini Widget -->
+    <div class="portfolio-pill" id="portfolio-pill" style="display:none" onclick="openPortfolio()">
+      <span style="font-size:10px">PnL</span>
+      <span id="portfolio-pnl" style="font-weight:700">$0</span>
+    </div>
+    <!-- Search -->
+    <button class="hdr-icon-btn" onclick="toggleSearch()" title="Search (Ctrl+K)">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M11 11L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+    <!-- Notifications -->
+    <button class="hdr-icon-btn" onclick="toggleNotifs()" title="Notifications" id="notif-btn">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.5 1.5 4 3.5 4 6v2.5L2.5 10.5v1h11v-1L12 8.5V6c0-2.5-1.5-4.5-4-4.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M6 12.5c0 1.1.9 2 2 2s2-.9 2-2" stroke="currentColor" stroke-width="1.3"/></svg>
+      <span class="notif-dot" id="notif-dot" style="display:none"></span>
+    </button>
+    <!-- Settings -->
+    <button class="hdr-icon-btn" onclick="toggleSettings()" title="Settings">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.5 1.5M11.5 11.5L13 13M13 3l-1.5 1.5M4.5 11.5L3 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+    </button>
+    <div class="ws-pill" id="ws-status">
+      <div class="ws-dot off" id="ws-dot"></div>
+      <span id="ws-lbl">CONNECTING</span>
+    </div>
+    <div class="ts-lbl" id="ts">—</div>
+  </div>
+</header>
+
+<main>
+
+<!-- WS Connection Lost Banner -->
+<div class="ws-banner" id="ws-banner">
+  <div class="ws-banner-dot"></div>
+  <span>Connection lost — live data paused</span>
+  <button class="ws-banner-btn" onclick="connectWS()">Reconnect</button>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     PAGE: OVERVIEW — Clean Dashboard
+════════════════════════════════════════════════ -->
+<div class="page on" id="page-overview">
+
+  <!-- My Watchlist -->
+  <div class="watchlist-section" id="watchlist-section" style="display:none">
+    <div class="dash-panel" style="padding:12px 16px 14px">
+      <div class="dash-panel-header" style="margin-bottom:10px">
+        <h2 class="dash-panel-title">My Watchlist</h2>
+        <span class="bdg bdg-y" id="watchlist-count">0</span>
+      </div>
+      <div class="watchlist-grid" id="watchlist-grid"></div>
+    </div>
+  </div>
+
+  <!-- Big KPI Cards -->
+  <div class="dash-panel">
+    <div class="dash-panel-header">
+      <h2 class="dash-panel-title" data-i18n="market_overview">Market Overview</h2>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="data-fresh" id="fresh-overview" data-ts="0">live</span>
+        <div class="dash-glow-line"></div>
+      </div>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Active Markets</div>
+        <div class="kpi-value ac" id="st-markets">—</div>
+        <div class="kpi-sub">(perp pairs)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total OI</div>
+        <div class="kpi-value" id="st-oi">—</div>
+        <div class="kpi-sub">Across markets USD</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">24h Volume</div>
+        <div class="kpi-value" id="st-vol">—</div>
+        <div class="kpi-sub">Across All markets</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Avg Funding APR</div>
+        <div class="kpi-value" id="st-fr">—</div>
+        <div class="kpi-sub">annualized avg</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ticker -->
+  <div class="ticker-wrap" style="height:36px;margin-bottom:20px">
+    <div class="ticker-track" id="ticker"></div>
+  </div>
+
+  <!-- Top Markets Heatmap — 60 markets, 6 rows × 10 cols -->
+  <div class="sec">Top Markets</div>
+  <div class="heatmap-60" id="mk-grid">
+    <div style="grid-column:1/-1;padding:20px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--tx3)">Loading markets...</div>
+  </div>
+
+  <!-- 2-Column: Left = Markets Table + Live Trades, Right = Funding Rates + L/S Ratio -->
+  <div class="dash-2col">
+    <div class="dash-col">
+      <div class="card">
+        <div class="card-hd"><div class="card-ttl">Top Markets</div><span class="bdg bdg-g">● Live</span></div>
+        <div style="overflow:auto;max-height:300px;">
+          <table class="ft"><thead><tr><th>Market</th><th>Price ▲</th><th>Amount ▲</th><th></th></tr></thead>
+          <tbody id="dash-markets-tbody"><tr><td colspan="4"><div class="skel-row"><div class="skel-circle skeleton"></div><div class="skel-line skel-line-md skeleton"></div><div class="skel-line skel-line-sm skeleton" style="margin-left:auto"></div></div><div class="skel-row"><div class="skel-circle skeleton"></div><div class="skel-line skel-line-lg skeleton"></div><div class="skel-line skel-line-sm skeleton" style="margin-left:auto"></div></div><div class="skel-row"><div class="skel-circle skeleton"></div><div class="skel-line skel-line-md skeleton"></div><div class="skel-line skel-line-sm skeleton" style="margin-left:auto"></div></div></td></tr></tbody></table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-ttl">Live Trades</div>
+          <a href="#" class="dash-see-all" onclick="switchTab('trading');return false">See All ›</a></div>
+        <div style="overflow:auto;max-height:300px;">
+          <table class="ft"><thead><tr><th>Market</th><th>Price</th><th>Amount</th><th>Time ▲</th></tr></thead>
+          <tbody id="dash-trades-tbody"><tr><td colspan="4"><div class="skel-row"><div class="skel-circle skeleton"></div><div class="skel-line skel-line-lg skeleton"></div><div class="skel-line skel-line-sm skeleton" style="margin-left:auto"></div></div><div class="skel-row"><div class="skel-circle skeleton"></div><div class="skel-line skel-line-md skeleton"></div><div class="skel-line skel-line-sm skeleton" style="margin-left:auto"></div></div><div class="skel-row"><div class="skel-circle skeleton"></div><div class="skel-line skel-line-lg skeleton"></div><div class="skel-line skel-line-sm skeleton" style="margin-left:auto"></div></div></td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+    <div class="dash-col">
+      <div class="card">
+        <div class="card-hd"><div class="card-ttl">Funding Rates</div>
+          <a href="#" class="dash-see-all" onclick="switchTab('analytics');return false">See All ›</a></div>
+        <div style="overflow:auto;max-height:300px;">
+          <table class="ft"><thead><tr><th>Market</th><th>1Hour</th><th>Rate</th><th>Annualized</th></tr></thead>
+          <tbody id="dash-fr-tbody"><tr><td colspan="4"><div class="skel-row"><div class="skel-line skel-line-md skeleton"></div><div class="skel-line skel-line-sm skeleton"></div><div class="skel-line skel-line-lg skeleton" style="margin-left:auto"></div></div><div class="skel-row"><div class="skel-line skel-line-md skeleton"></div><div class="skel-line skel-line-sm skeleton"></div><div class="skel-line skel-line-lg skeleton" style="margin-left:auto"></div></div><div class="skel-row"><div class="skel-line skel-line-md skeleton"></div><div class="skel-line skel-line-sm skeleton"></div><div class="skel-line skel-line-lg skeleton" style="margin-left:auto"></div></div></td></tr></tbody></table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-ttl">Long / Short Ratio</div>
+          <a href="#" class="dash-see-all" onclick="switchTab('analytics');return false">See All ›</a></div>
+        <div class="ls-wrap" id="ls-wrap">
+          <div class="skel-row"><div class="skel-line skel-line-md skeleton"></div><div class="skel-line skel-line-xl skeleton" style="flex:1"></div><div class="skel-line skel-line-sm skeleton"></div></div>
+          <div class="skel-row"><div class="skel-line skel-line-md skeleton"></div><div class="skel-line skel-line-xl skeleton" style="flex:1"></div><div class="skel-line skel-line-sm skeleton"></div></div>
+          <div class="skel-row"><div class="skel-line skel-line-md skeleton"></div><div class="skel-line skel-line-xl skeleton" style="flex:1"></div><div class="skel-line skel-line-sm skeleton"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Heatmap -->
+  <div class="sec">Funding Rate Heatmap</div>
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-hd"><div class="card-ttl">All Markets — colour = funding rate</div>
+      <div style="display:flex;gap:8px;">
+        <span class="bdg bdg-g">● positive = longs pay</span>
+        <span class="bdg bdg-r">● negative = shorts pay</span>
+      </div>
+    </div>
+    <div class="hm-grid" id="heatmap"></div>
+  </div>
+
+  <!-- FR History + Ranking -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+    <div class="card">
+      <div class="card-hd"><div class="card-ttl">Top 5 Markets — Funding Rate History</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap" id="fr-hist-legend"></div></div>
+      <div class="chart-wrap"><canvas class="cc" id="ov-fr-chart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div class="card-ttl">Funding Rate Ranking</div>
+        <span class="bdg bdg-c">sorted by |APR|</span></div>
+      <div style="padding:10px 14px;display:flex;flex-direction:column;gap:6px" id="fr-rank-list"></div>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div class="sec">Smart Alerts</div>
+  <div class="card">
+    <div class="card-hd"><div class="card-ttl">Funding Rate Opportunities</div>
+      <span class="bdg bdg-y" id="alrt-cnt">0 alerts</span></div>
+    <div class="alrt-list" id="alrt-list">
+      <div class="skel-row"><div class="skel-line skel-line-sm skeleton" style="width:24px;height:24px;border-radius:6px"></div><div style="flex:1;display:flex;flex-direction:column;gap:4px"><div class="skel-line skel-line-lg skeleton"></div><div class="skel-line skel-line-xl skeleton"></div></div><div class="skel-line skel-line-sm skeleton"></div></div>
+      <div class="skel-row"><div class="skel-line skel-line-sm skeleton" style="width:24px;height:24px;border-radius:6px"></div><div style="flex:1;display:flex;flex-direction:column;gap:4px"><div class="skel-line skel-line-lg skeleton"></div><div class="skel-line skel-line-xl skeleton"></div></div><div class="skel-line skel-line-sm skeleton"></div></div>
+    </div>
+  </div>
+
+  <!-- Whale Summary -->
+  <div class="sec" style="margin-top:20px">Whale Activity — Session Summary</div>
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-hd"><div class="card-ttl">Large Trades Overview</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="bdg bdg-y" id="ov-whale-cnt">0 whales</span>
+        <a href="#" onclick="switchTab('liquidation');document.querySelector('[data-subtab=whale]').click();return false"
+          style="font-family:var(--mono);font-size:9px;color:var(--ac);text-decoration:none;letter-spacing:.08em">VIEW ALL →</a>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bd)">
+      <div style="background:var(--bg1);padding:12px 14px"><div class="s-lbl">Largest Trade</div><div class="s-val yw" id="ov-wh-largest" style="font-size:18px">—</div></div>
+      <div style="background:var(--bg1);padding:12px 14px"><div class="s-lbl">Whale Volume</div><div class="s-val ac" id="ov-wh-vol" style="font-size:18px">$0</div></div>
+      <div style="background:var(--bg1);padding:12px 14px"><div class="s-lbl">Most Active</div><div class="s-val" id="ov-wh-market" style="font-size:18px">—</div></div>
+      <div style="background:var(--bg1);padding:12px 14px"><div class="s-lbl">Latest Alert</div><div class="s-val pu" id="ov-wh-latest" style="font-size:13px;line-height:1.3">—</div></div>
+    </div>
+    <div style="overflow:auto;max-height:160px">
+      <table class="whale-table"><thead><tr><th>Time</th><th>Market</th><th>Direction</th><th>Size</th><th>Price</th></tr></thead>
+        <tbody id="ov-whale-tbody"><tr><td colspan="5" style="padding:12px;font-family:var(--mono);font-size:10px;color:var(--tx3);text-align:center">Watching for large trades...</td></tr></tbody></table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════ PAGE: INTELLIGENCE ════ -->
+<div class="page" id="page-markets">
+<div class="intel-layout">
+  <div class="intel-calendar">
+    <div class="intel-panel-header"><span class="intel-panel-title">Economic Calendar</span>
+      <div class="intel-cal-filters">
+        <button class="ical-pill on" data-country="all">Global</button>
+        <button class="ical-pill" data-country="US">🇺🇸 US</button>
+        <button class="ical-pill" data-country="EU">🇪🇺 EU</button>
+        <button class="ical-pill" data-country="JP">🇯🇵 JP</button>
+        <button class="ical-pill" data-country="CN">🇨🇳 CN</button>
+        <button class="ical-pill" data-country="GB">🇬🇧 UK</button>
+      </div>
+    </div>
+    <div id="cal-list" class="cal-list"><div class="cal-loading">Loading calendar...</div></div>
+  </div>
+  <div class="intel-center">
+    <div class="intel-panel-header"><span class="intel-panel-title">Global Market Intelligence</span><span id="intel-clock" class="intel-clock">--:-- AM</span></div>
+    <div class="world-map-wrap" id="globe-wrap" style="position:relative;min-height:340px;background:var(--bg2);border-radius:8px;overflow:hidden">
+      <canvas id="globe-canvas" style="width:100%;height:340px;display:block;cursor:grab;border-radius:8px"></canvas>
+      <div id="globe-tooltip" class="globe-tooltip" style="display:none;position:absolute;z-index:10;background:var(--bg1);border:1px solid var(--bd2);border-radius:6px;padding:8px 12px;font-family:var(--mono);font-size:10px;color:var(--tx);box-shadow:0 4px 16px rgba(0,0,0,.12);max-width:260px;pointer-events:none"></div>
+    </div>
+    <div class="map-region-pills">
+      <button class="map-rpill on" data-region="all">All</button>
+      <button class="map-rpill" data-region="US">US</button>
+      <button class="map-rpill" data-region="EU">EU</button>
+      <button class="map-rpill" data-region="JP">JP</button>
+    </div>
+    <div class="intel-stats-row" id="intel-stats-row">
+      <div class="istat-card"><div class="istat-lbl">Fear &amp; Greed</div><div class="istat-val" id="istat-fg">—</div></div>
+      <div class="istat-card"><div class="istat-lbl">BTC Dom.</div><div class="istat-val" id="istat-dom">—</div></div>
+      <div class="istat-card"><div class="istat-lbl">Crypto Mktcap</div><div class="istat-val" id="istat-mcap">—</div></div>
+      <div class="istat-card"><div class="istat-lbl">24h Volume</div><div class="istat-val" id="istat-vol">—</div></div>
+      <div class="istat-card"><div class="istat-lbl">Active Events</div><div class="istat-val" id="istat-events">—</div></div>
+    </div>
+  </div>
+  <div class="intel-news">
+    <div class="intel-panel-header"><span class="intel-panel-title">Global News</span>
+      <div class="news-feed-controls">
+        <button class="news-cat-pill on" data-cat="all">All</button>
+        <button class="news-cat-pill" data-cat="crypto">Crypto</button>
+        <button class="news-cat-pill" data-cat="macro">Macro</button>
+        <button class="news-cat-pill" data-cat="equities">Equities</button>
+      </div>
+    </div>
+    <div id="news-feed-list" class="news-feed-list"><div class="news-loading">Fetching latest news...</div></div>
+    <div class="news-refresh-bar"><span id="news-last-update" class="news-ts">—</span><button class="news-refresh-btn" onclick="fetchIntelNews()">↻ Refresh</button></div>
+  </div>
+</div>
+</div>
+
+<!-- Coin Detail (internal nav) -->
+<div class="page" id="page-coindetail">
+<div class="coin-detail-layout">
+  <div class="cd-main">
+    <div class="cd-header">
+      <button class="cd-back" onclick="switchTab('markets')">← Back to Markets</button>
+      <div class="cd-coin-info">
+        <img id="cd-logo" src="" alt="" class="cd-logo">
+        <div><h2 id="cd-name" class="cd-name">Bitcoin</h2><div class="cd-meta"><span id="cd-symbol" class="cd-symbol-tag">BTC</span><span id="cd-rank" class="cd-rank-tag">#1</span></div></div>
+        <div style="margin-left:auto;text-align:right"><div id="cd-price" class="cd-price">$74,538.15</div><div id="cd-chg24" class="gn" style="font-size:13px;font-weight:600">+0.34%</div></div>
+      </div>
+    </div>
+    <div class="cd-chart-section">
+      <div class="cd-chart-label">Price <span id="cd-chart-hi" style="float:right;color:var(--tx2);font-size:11px"></span></div>
+      <div class="cd-chart-area"><canvas id="cd-price-chart" height="200"></canvas></div>
+      <div class="cd-chart-bottom"><div class="cd-xaxis" id="cd-xaxis"></div>
+        <div class="cd-timeframes">
+          <button class="cd-tf on" data-tf="1h">1h</button><button class="cd-tf" data-tf="3h">3h</button><button class="cd-tf" data-tf="12h">12h</button><button class="cd-tf" data-tf="24h">24h</button><button class="cd-tf" data-tf="7d">7d</button><button class="cd-tf" data-tf="30d">30d</button><button class="cd-tf" data-tf="3m">3m</button><button class="cd-tf" data-tf="1y">1y</button><button class="cd-tf" data-tf="all">All</button>
+        </div>
+      </div>
+    </div>
+    <div class="cd-perf-section"><div class="cd-section-title">Percentual Performance</div><div class="cd-perf-tags"><span class="cd-perf-tag on" id="cd-perf-coin">BTC</span><span class="cd-perf-tag" style="opacity:.5">vs USD</span></div><div class="cd-chart-area"><canvas id="cd-perf-chart" height="160"></canvas></div></div>
+    <div class="cd-gl-section"><div class="cd-section-title">Gains and Losses <span id="cd-gl-chg" style="float:right;font-size:12px;color:var(--tx2)"></span></div><div class="cd-chart-area"><canvas id="cd-gl-chart" height="120"></canvas></div></div>
+  </div>
+  <div class="cd-sidebar">
+    <div class="cdsb-card"><h3 class="msb-title">Stats</h3>
+      <div class="cd-stat-row"><span class="cd-stat-lbl">🏆 Rank</span><span class="cd-stat-val ac" id="cd-stat-rank">#1</span></div>
+      <div class="cd-stat-row"><span class="cd-stat-lbl">⏱ Market Cap</span><span class="cd-stat-val"><span id="cd-stat-mcap">$1.49T</span> <span class="gn" id="cd-stat-mcap-chg">+0.45%</span></span></div>
+      <div class="cd-stat-row"><span class="cd-stat-lbl">📊 Trading Volume</span><span class="cd-stat-val"><span id="cd-stat-vol">$34.58B</span> <span class="rd" id="cd-stat-vol-chg">-0.68%</span></span></div>
+      <div class="cd-stat-row"><span class="cd-stat-lbl">⚙️ Circ. Supply</span><span class="cd-stat-val ac" id="cd-stat-supply">20.00M BTC</span></div>
+      <div class="cd-stat-row"><span class="cd-stat-lbl">🔺 All time high</span><span class="cd-stat-val"><span id="cd-stat-ath">$126,077.50</span> <span class="rd">-40.87%</span></span></div>
+      <div class="cd-stat-row"><span class="cd-stat-lbl">📋 Exchange Listings</span><span class="cd-stat-val ac" id="cd-stat-exchanges">82</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════ PAGE: TRADING (Wallet + AI + Arbitrage) ════ -->
+<div class="page" id="page-trading">
+  <!-- Sub-pages controlled by header dropdown -->
+
+  <!-- Wallet -->
+  <div class="subpage on" id="subpage-wallet">
+    <!-- Wallet Tools Bar -->
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <button class="empty-state-btn" onclick="openPnlCalc()" style="margin:0;font-size:10px;padding:6px 14px">&#x1F4B0; PnL Calculator</button>
+      <button class="empty-state-btn" onclick="exportCSV('positions')" style="margin:0;font-size:10px;padding:6px 14px">&#x1F4E5; Export Positions</button>
+      <button class="empty-state-btn" onclick="exportCSV('trades')" style="margin:0;font-size:10px;padding:6px 14px">&#x1F4C4; Export Trades</button>
+    </div>
+    <div class="card" style="margin-bottom:16px;"><div class="card-hd"><div class="card-ttl">Connect Wallet</div><span class="bdg bdg-p">read-only · no signing required</span></div>
+      <div class="wallet-form"><input class="w-input" id="wallet-addr" placeholder="Enter Pacifica wallet address (e.g. 42trU9A5...)" autocomplete="off"><button class="btn-connect" onclick="connectWallet()">CONNECT</button><button class="btn-disco" id="btn-disco" style="display:none" onclick="disconnectWallet()">DISCONNECT</button></div>
+      <div style="padding:8px 16px 12px;font-family:var(--mono);font-size:9px;color:var(--tx3)">ℹ️ Enter any Pacifica wallet address to track positions in real-time.</div>
+    </div>
+    <div class="card" style="margin-bottom:16px;" id="wallet-kpi-card"><div class="card-hd"><div class="card-ttl">Portfolio Summary</div><span class="bdg bdg-c" id="wallet-addr-badge">—</span></div>
+      <div class="wallet-stats" id="wallet-stats">
+        <div class="w-kpi"><div class="w-kpi-l">Total Positions</div><div class="w-kpi-v ac" id="wk-pos">—</div><div class="w-kpi-s">open markets</div><div class="w-kpi-bar"><div class="w-kpi-bar-fill" id="wkb-pos"></div></div></div>
+        <div class="w-kpi"><div class="w-kpi-l">Unrealised PnL</div><div class="w-kpi-v" id="wk-upnl">—</div><div class="w-kpi-s">mark price</div><div class="w-kpi-bar"><div class="w-kpi-bar-fill" id="wkb-upnl" style="background:linear-gradient(90deg,var(--gn),var(--gn))"></div></div></div>
+        <div class="w-kpi"><div class="w-kpi-l">Total Margin</div><div class="w-kpi-v" id="wk-margin">—</div><div class="w-kpi-s">USD collateral</div><div class="w-kpi-bar"><div class="w-kpi-bar-fill" id="wkb-margin" style="background:linear-gradient(90deg,var(--pu),var(--ac))"></div></div></div>
+        <div class="w-kpi"><div class="w-kpi-l">Funding Paid</div><div class="w-kpi-v" id="wk-funding">—</div><div class="w-kpi-s">cumulative</div><div class="w-kpi-bar"><div class="w-kpi-bar-fill" id="wkb-funding" style="background:linear-gradient(90deg,var(--yw),var(--or))"></div></div></div>
+      </div>
+      <div class="wallet-ext-grid" id="wallet-ext-grid" style="display:none">
+        <div class="w-kpi"><div class="w-kpi-l">Realized PnL</div><div class="w-kpi-v" id="wk-rpnl">—</div><div class="w-kpi-s">closed trades</div></div>
+        <div class="w-kpi"><div class="w-kpi-l">Win Rate</div><div class="w-kpi-v ac" id="wk-winrate">—</div><div class="w-kpi-s">profitable trades</div></div>
+        <div class="w-kpi"><div class="w-kpi-l">Avg Win</div><div class="w-kpi-v gn" id="wk-avgwin">—</div><div class="w-kpi-s">per winning trade</div></div>
+        <div class="w-kpi"><div class="w-kpi-l">Avg Loss</div><div class="w-kpi-v rd" id="wk-avgloss">—</div><div class="w-kpi-s">per losing trade</div></div>
+        <div class="w-kpi"><div class="w-kpi-l">Best Trade</div><div class="w-kpi-v gn" id="wk-best">—</div><div class="w-kpi-s">realized PnL</div></div>
+        <div class="w-kpi"><div class="w-kpi-l">Total Trades</div><div class="w-kpi-v" id="wk-tradetotal">—</div><div class="w-kpi-s">in history</div></div>
+      </div>
+    </div>
+    <div class="card" id="pnl-chart-card" style="display:none;margin-bottom:16px;"><div class="card-hd"><div class="card-ttl">Cumulative Realized PnL</div><span class="bdg bdg-c">from trade history</span></div><div class="chart-wrap"><canvas class="cc" id="pnl-chart"></canvas></div></div>
+    <div class="card" style="margin-bottom:16px;" id="wallet-insights-card"><div class="card-hd"><div class="card-ttl">Insights — Performance by Symbol</div><span class="bdg bdg-c" id="insights-cnt">—</span></div>
+      <div style="overflow:auto;"><table class="insights-table"><thead><tr><th>Coin</th><th>Volume</th><th>Long%</th><th>Trades</th><th>Wins%</th><th>Avg PnL</th><th>PnL%</th><th>PnL $</th></tr></thead><tbody id="insights-tbody"><tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">&#x1F50D;</div><div class="empty-state-title">No insights yet</div><div class="empty-state-desc">Connect a wallet to see per-symbol performance breakdown</div></div></td></tr></tbody></table></div>
+    </div>
+    <div class="wallet-layout">
+      <div class="card"><div class="card-hd"><div class="card-ttl">Open Positions</div><span class="bdg bdg-c" id="pos-cnt">0</span></div><div style="overflow:auto;max-height:360px;"><table class="pos-table"><thead><tr><th>Market</th><th>Side</th><th>Size</th><th>Entry</th><th>Mark</th><th>uPnL</th><th>Liq Price</th></tr></thead><tbody id="pos-tbody"><tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">&#x1F4BC;</div><div class="empty-state-title">No open positions</div><div class="empty-state-desc">Connect your Pacifica wallet to track positions, PnL, and funding in real-time</div></div></td></tr></tbody></table></div></div>
+      <div class="card"><div class="card-hd"><div class="card-ttl">Recent Trade History</div><span class="bdg bdg-c">last 20</span></div><div style="overflow:auto;max-height:360px;"><table class="th-table"><thead><tr><th>Market</th><th>Side</th><th>Price</th><th>Amount</th><th>PnL</th><th>Time</th></tr></thead><tbody id="hist-tbody"><tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">&#x1F4C8;</div><div class="empty-state-title">No trade history</div><div class="empty-state-desc">Your recent trades will appear here once you connect a wallet</div></div></td></tr></tbody></table></div></div>
+    </div>
+    <div class="wallet-bottom-grid" id="wallet-analytics-grid" style="display:none">
+      <div class="card"><div class="card-hd"><div class="card-ttl">Position Size</div><span class="bdg bdg-c" id="avg-pos-size">Avg: —</span></div><div id="pos-size-rows"></div></div>
+      <div class="card"><div class="card-hd"><div class="card-ttl">Holding Time</div><div style="display:flex;gap:8px"><span class="bdg bdg-c" id="median-hold">Median: —</span><span class="bdg bdg-p" id="avg-hold">Avg: —</span></div></div><div id="hold-time-rows"></div></div>
+      <div class="card"><div class="card-hd"><div class="card-ttl">Leverage Used</div><span class="bdg bdg-c" id="avg-leverage-lbl">Avg: —</span></div><div id="leverage-rows"></div></div>
+    </div>
+  </div>
+
+  <!-- AI -->
+  <div class="subpage" id="subpage-ai">
+    <div class="ai-layout">
+      <div class="card chat-box"><div class="card-hd"><div class="card-ttl">Elfa AI Chat</div><span class="bdg bdg-p">social intelligence + market context</span></div>
+        <div class="chat-msgs" id="chat-msgs"><div class="msg ai"><div class="msg-bubble">👋 Hi! I'm your AI trading assistant powered by <strong>Elfa AI</strong>.<br><br>Ask me about market sentiment, funding strategies, trending narratives, or risk analysis.</div><div class="msg-meta">Elfa AI · ready</div></div></div>
+        <div class="chat-input-row"><textarea class="chat-inp" id="chat-inp" placeholder="Ask about market sentiment, funding rates, strategies..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"></textarea><button class="btn-send" id="btn-send" onclick="sendChat()">SEND</button></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="card"><div class="card-hd"><div class="card-ttl">Quick Prompts</div></div>
+          <div class="quick-prompts">
+            <div class="qp-item" onclick="setPrompt('What is the current sentiment for BTC on Crypto Twitter?')"><p>BTC Sentiment</p><span>Twitter/CT signal analysis</span></div>
+            <div class="qp-item" onclick="setPrompt('What are the trending crypto narratives right now?')"><p>Trending Narratives</p><span>What CT is talking about</span></div>
+            <div class="qp-item" onclick="setPrompt('Which markets on Pacifica have the highest funding rates right now and what does that mean?')"><p>Funding Rate Analysis</p><span>Best opportunities right now</span></div>
+            <div class="qp-item" onclick="setPrompt('Explain the cash-and-carry arbitrage strategy for positive funding rates')"><p>Cash & Carry Strategy</p><span>Funding arbitrage explained</span></div>
+          </div>
+        </div>
+        <div class="card"><div class="card-hd"><div class="card-ttl">Live Market Context</div><span class="bdg bdg-c">injected into prompts</span></div><div style="padding:12px 14px;font-family:var(--mono);font-size:9px;color:var(--tx3);line-height:1.8" id="ai-context">Waiting for market data...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arbitrage -->
+  <div class="subpage" id="subpage-arbitrage">
+    <div class="stats5" style="grid-template-columns:repeat(5,1fr);margin-bottom:14px" id="arb-perf-grid">
+      <div class="s-card"><div class="s-lbl">Opportunities Found</div><div class="s-val ac" id="perf-total">0</div><div class="s-sub">this session</div></div>
+      <div class="s-card"><div class="s-lbl">Avg Spread APR</div><div class="s-val" id="perf-avg-apr">—</div><div class="s-sub">active pairs</div></div>
+      <div class="s-card"><div class="s-lbl">Best APR Seen</div><div class="s-val yw" id="perf-best-apr">—</div><div class="s-sub">session high</div></div>
+      <div class="s-card"><div class="s-lbl">Sim. Profit ($10K)</div><div class="s-val gn" id="perf-sim-profit">—</div><div class="s-sub">30-day @ best APR</div></div>
+      <div class="s-card"><div class="s-lbl">Active Pairs</div><div class="s-val pu" id="perf-pairs">0</div><div class="s-sub">spread &gt; 0.03%/8h</div></div>
+    </div>
+
+    <!-- Arb Table + Spread Chart SIDE BY SIDE -->
+    <div class="arb-main-row">
+      <div class="card">
+        <div class="card-hd"><div class="card-ttl">Live Arbitrage Opportunities</div><span class="bdg bdg-y">sorted by spread APR</span></div>
+        <div style="overflow:auto;max-height:340px;"><table class="arb-table"><thead><tr><th>Long</th><th>Short</th><th>FR Long</th><th>FR Short</th><th>Spread/8h</th><th>APR</th><th>Signal</th></tr></thead><tbody id="arb-tbody"><tr><td colspan="7"><div class="skel-row"><div class="skel-line skel-line-md skeleton"></div><div class="skel-line skel-line-md skeleton"></div><div class="skel-line skel-line-sm skeleton"></div><div class="skel-line skel-line-sm skeleton" style="margin-left:auto"></div></div><div class="skel-row"><div class="skel-line skel-line-md skeleton"></div><div class="skel-line skel-line-md skeleton"></div><div class="skel-line skel-line-sm skeleton"></div><div class="skel-line skel-line-sm skeleton" style="margin-left:auto"></div></div></td></tr></tbody></table></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-ttl">Best Spread APR Over Time</div><span class="bdg bdg-y" id="spread-chart-lbl">live</span></div>
+        <div class="chart-wrap"><canvas class="cc-sm" id="spread-chart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Best Opportunity + Strategy Guide compact row -->
+    <div class="arb-info-row">
+      <div class="strat-card" id="strat-best"><div class="strat-head"><div class="strat-name">⚡ Best Opportunity</div><span class="bdg bdg-y" id="strat-badge">calculating...</span></div><div class="strat-body" id="strat-body">Loading live market data...</div><div class="strat-metrics"><div class="strat-m"><div class="strat-ml">Spread APR</div><div class="strat-mv yw" id="strat-apr">—</div></div><div class="strat-m"><div class="strat-ml">Monthly Return</div><div class="strat-mv gn" id="strat-monthly">—</div></div><div class="strat-m"><div class="strat-ml">Risk Level</div><div class="strat-mv" id="strat-risk">—</div></div></div></div>
+      <div class="strat-card" style="margin:0"><div class="strat-head"><div class="strat-name">Cash & Carry</div><span class="bdg bdg-p">market-neutral</span></div><div class="strat-body" style="margin-bottom:0">Long the market with negative/low funding, short the market with highest positive funding. Collect the spread while remaining market-neutral.</div></div>
+    </div>
+
+    <div class="sec" style="margin-top:14px">Alert Configuration — Telegram & Discord</div>
+    <div class="card" style="margin-bottom:12px"><div style="padding:12px 18px;display:flex;align-items:center;gap:24px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.1em;font-weight:600">Alerts Sent</span><span id="alert-stats-sent" style="font-family:var(--mono);font-size:14px;color:var(--ac);font-weight:700">0</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.1em;font-weight:600">Last Alert</span><span id="alert-stats-last" style="font-family:var(--mono);font-size:11px;color:var(--tx2)">—</span></div>
+    </div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+      <div class="card"><div class="card-hd"><div class="card-ttl">Telegram Alerts</div><span class="bdg bdg-c" id="tg-status-badge">not configured</span></div>
+        <div style="padding:16px;display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:10px;color:var(--tx2);line-height:1.7">Get instant alerts. Create a bot via <strong>@BotFather</strong> and paste your token below.</div>
+          <div><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--tx3);margin-bottom:5px">Bot Token</div><input class="w-input" id="tg-token" placeholder="123456:ABC-DEF..." autocomplete="off" oninput="validateTgConfig()"></div>
+          <div><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--tx3);margin-bottom:5px">Chat ID</div><input class="w-input" id="tg-chat" placeholder="-100123456789" autocomplete="off" oninput="validateTgConfig()"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--tx3);margin-bottom:5px">Min APR %</div><input class="w-input" id="tg-min-apr" type="number" value="50" min="1" style="padding:7px 10px"></div><div><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--tx3);margin-bottom:5px">Cooldown (min)</div><input class="w-input" id="tg-cooldown" type="number" value="60" min="1" style="padding:7px 10px"></div></div>
+          <div><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--tx3);margin-bottom:8px">Alert Types</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--tx2);cursor:pointer"><input type="checkbox" id="tg-alert-arb" checked style="accent-color:var(--ac)"> 🔥 Arb Spreads</label><label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--tx2);cursor:pointer"><input type="checkbox" id="tg-alert-whale" checked style="accent-color:var(--ac)"> 🐋 Whale Trades</label><label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--tx2);cursor:pointer"><input type="checkbox" id="tg-alert-liq" checked style="accent-color:var(--ac)"> 💀 Liquidations</label><label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--tx2);cursor:pointer"><input type="checkbox" id="tg-alert-funding" checked style="accent-color:var(--ac)"> ⚠️ Funding Spikes</label></div></div>
+          <div style="display:flex;gap:8px"><button class="btn-connect" id="tg-save-btn" onclick="saveTgConfig()" style="flex:1;opacity:.4;cursor:not-allowed" disabled>SAVE CONFIG</button><button class="btn-connect" onclick="testTgAlert()" style="background:rgba(188,140,255,.15);border:1px solid rgba(188,140,255,.3);color:var(--pu)">TEST</button><button class="btn-connect" onclick="clearTgConfig()" style="background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.3);color:var(--rd);font-size:9px;padding:4px 10px">CLEAR</button></div>
+          <div id="tg-feedback" style="font-family:var(--mono);font-size:9px;color:var(--tx3);display:none"></div>
+        </div>
+      </div>
+      <div class="card"><div class="card-hd"><div class="card-ttl">Discord Alerts</div><span class="bdg bdg-p" id="dc-status-badge">not configured</span></div>
+        <div style="padding:16px;display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:10px;color:var(--tx2);line-height:1.7">Post alerts via Webhook. <strong>Channel Settings → Integrations → Webhooks</strong></div>
+          <div><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--tx3);margin-bottom:5px">Webhook URL</div><input class="w-input" id="dc-webhook" placeholder="https://discord.com/api/webhooks/..." autocomplete="off" oninput="validateDcConfig()"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--tx3);margin-bottom:5px">Min APR %</div><input class="w-input" id="dc-min-apr" type="number" value="50" min="1" style="padding:7px 10px"></div><div><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--tx3);margin-bottom:5px">Cooldown (min)</div><input class="w-input" id="dc-cooldown" type="number" value="60" min="1" style="padding:7px 10px"></div></div>
+          <div><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--tx3);margin-bottom:8px">Alert Types</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--tx2);cursor:pointer"><input type="checkbox" id="dc-alert-arb" checked style="accent-color:var(--pu)"> 🔥 Arb Spreads</label><label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--tx2);cursor:pointer"><input type="checkbox" id="dc-alert-whale" checked style="accent-color:var(--pu)"> 🐋 Whale Trades</label><label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--tx2);cursor:pointer"><input type="checkbox" id="dc-alert-liq" checked style="accent-color:var(--pu)"> 💀 Liquidations</label><label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--tx2);cursor:pointer"><input type="checkbox" id="dc-alert-funding" checked style="accent-color:var(--pu)"> ⚠️ Funding Spikes</label></div></div>
+          <div style="display:flex;gap:8px"><button class="btn-connect" id="dc-save-btn" onclick="saveDcConfig()" style="flex:1;opacity:.4;cursor:not-allowed" disabled>SAVE CONFIG</button><button class="btn-connect" onclick="testDcAlert()" style="background:rgba(188,140,255,.15);border:1px solid rgba(188,140,255,.3);color:var(--pu)">TEST</button><button class="btn-connect" onclick="clearDcConfig()" style="background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.3);color:var(--rd);font-size:9px;padding:4px 10px">CLEAR</button></div>
+          <div id="dc-feedback" style="font-family:var(--mono);font-size:9px;color:var(--tx3);display:none"></div>
+        </div>
+      </div>
+    </div>
+    <div class="sec">Arbitrage Bot — Python Implementation</div>
+    <div class="card"><div class="card-hd"><div class="card-ttl">Arbitrage Bot — Python</div><div style="display:flex;gap:8px;"><span class="bdg bdg-p">Pacifica WebSocket</span><span class="bdg bdg-c">Telegram + Discord</span></div></div>
+      <div style="padding:16px;display:flex;align-items:center;gap:12px"><div style="font-size:11px;color:var(--tx2);flex:1">Full source code for the funding rate arbitrage bot with auto-reconnect, Telegram & Discord alerts.</div><a href="https://github.com" target="_blank" class="empty-state-btn" style="flex-shrink:0">View on GitHub</a></div></div>
+  </div>
+</div>
+
+<!-- ════ PAGE: ANALYTICS (Analytics + Orderbook) ════ -->
+<div class="page" id="page-analytics">
+  <!-- Sub-pages controlled by header dropdown -->
+
+  <div class="subpage on" id="subpage-analytics-main">
+    <div class="an-kpi-row">
+      <div class="an-kpi"><div class="an-kpi-icon vol"><svg viewBox="0 0 16 16" fill="none" width="18" height="18"><rect x="1" y="8" width="3" height="7" rx="1" fill="#38bdf8"/><rect x="6" y="5" width="3" height="10" rx="1" fill="#38bdf8" opacity=".7"/><rect x="11" y="2" width="3" height="13" rx="1" fill="#38bdf8" opacity=".5"/></svg></div><div class="an-kpi-l">Trade Volume</div><div class="an-kpi-v" id="an-trade-vol">—</div><div class="an-kpi-sub" id="an-trade-vol-today">Today: —</div><div class="an-kpi-chg pos" id="an-vol-chg">▲ —</div></div>
+      <div class="an-kpi"><div class="an-kpi-icon fee"><svg viewBox="0 0 16 16" fill="none" width="18" height="18"><circle cx="8" cy="8" r="6" stroke="#22d3a5" stroke-width="1.5"/><text x="8" y="12" text-anchor="middle" font-size="8" fill="#22d3a5" font-family="monospace" font-weight="700">$</text></svg></div><div class="an-kpi-l">Total Fees</div><div class="an-kpi-v" id="an-total-fees">—</div><div class="an-kpi-sub">Zero-fee campaign live</div><div class="an-kpi-chg pos" id="an-fee-chg">▲ —</div></div>
+      <div class="an-kpi"><div class="an-kpi-icon oi"><svg viewBox="0 0 16 16" fill="none" width="18" height="18"><path d="M5 8h6M8 5v6" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"/><circle cx="8" cy="8" r="6" stroke="#a78bfa" stroke-width="1.2"/></svg></div><div class="an-kpi-l">Open Interest</div><div class="an-kpi-v" id="an-open-interest">—</div><div class="an-kpi-sub" id="an-oi-today">Today: —</div><div class="an-kpi-chg" id="an-oi-chg">— —</div></div>
+      <div class="an-kpi"><div class="an-kpi-icon usr"><svg viewBox="0 0 16 16" fill="none" width="18" height="18"><circle cx="6" cy="5" r="2" stroke="#f43f5e" stroke-width="1.3"/><path d="M2 13c0-3 2-4 4-4s4 1 4 4" stroke="#f43f5e" stroke-width="1.3" stroke-linecap="round"/></svg></div><div class="an-kpi-l">Active Markets</div><div class="an-kpi-v" id="an-markets">—</div><div class="an-kpi-sub" id="an-markets-sub">perpetuals</div><div class="an-kpi-chg pos" id="an-mkt-chg">▲ —</div></div>
+    </div>
+    <div class="an-chart-row" style="margin-bottom:12px"><div class="card"><div class="card-hd an-chart-hd"><div class="card-ttl">Trade Volume</div><div class="an-time-btns" id="vol-time-btns"><div class="an-tbtn on" onclick="setAnTime('vol','D',this)">D</div><div class="an-tbtn" onclick="setAnTime('vol','W',this)">W</div><div class="an-tbtn" onclick="setAnTime('vol','M',this)">M</div></div></div><div class="chart-wrap"><canvas class="cc-tall" id="vol-chart"></canvas></div></div><div class="card an-top-pairs"><div class="tp-hd">Top Trading Pairs</div><div id="tp-list"></div></div></div>
+    <div class="an-grid2" style="margin-bottom:12px">
+      <div class="card"><div class="card-hd an-chart-hd"><div class="card-ttl">Platform Revenue</div><div class="an-time-btns"><div class="an-tbtn on" onclick="setAnTime('rev','D',this)">D</div><div class="an-tbtn" onclick="setAnTime('rev','W',this)">W</div><div class="an-tbtn" onclick="setAnTime('rev','M',this)">M</div></div></div><div class="chart-wrap"><canvas class="cc" id="rev-chart"></canvas></div></div>
+      <div class="card"><div class="card-hd an-chart-hd"><div class="card-ttl">Open Interest</div><div class="an-time-btns"><div class="an-tbtn on" onclick="setAnTime('oi','D',this)">D</div><div class="an-tbtn" onclick="setAnTime('oi','W',this)">W</div><div class="an-tbtn" onclick="setAnTime('oi','M',this)">M</div></div></div><div class="chart-wrap"><canvas class="cc" id="oi-chart"></canvas></div></div>
+    </div>
+    <div class="an-grid2" style="margin-bottom:12px">
+      <div class="card"><div class="card-hd an-chart-hd"><div class="card-ttl">Active Users</div><div class="an-time-btns"><div class="an-tbtn on" onclick="setAnTime('usr','D',this)">D</div><div class="an-tbtn" onclick="setAnTime('usr','W',this)">W</div><div class="an-tbtn" onclick="setAnTime('usr','M',this)">M</div></div></div><div class="chart-wrap"><canvas class="cc" id="usr-chart"></canvas></div></div>
+      <div class="card"><div class="card-hd an-chart-hd"><div class="card-ttl">Trades</div><div class="an-time-btns"><div class="an-tbtn on" onclick="setAnTime('trd','D',this)">D</div><div class="an-tbtn" onclick="setAnTime('trd','W',this)">W</div><div class="an-tbtn" onclick="setAnTime('trd','M',this)">M</div></div></div><div class="chart-wrap"><canvas class="cc" id="trd-chart"></canvas></div></div>
+    </div>
+    <div class="an-grid3">
+      <div class="card"><div class="card-hd"><div class="card-ttl">Open Interest by Market</div><span class="bdg bdg-c">USD value</span></div><div class="dom-list" id="oi-list"></div></div>
+      <div class="card"><div class="card-hd"><div class="card-ttl">24h Volume Dominance</div><span class="bdg bdg-c">market share</span></div><div class="dom-list" id="vol-list"></div></div>
+      <div class="card"><div class="card-hd"><div class="card-ttl">Funding Rate History (24h)</div><span class="bdg bdg-c" id="an-sym-sel">BTC</span></div><div class="chart-wrap"><canvas class="cc" id="fr-chart"></canvas></div></div>
+    </div>
+    <div class="card" style="margin-top:12px"><div class="card-hd"><div class="card-ttl">Long / Short Volume Ratio</div><span class="bdg bdg-c">trade flow analysis</span></div><div class="chart-wrap"><canvas class="cc" id="ls-chart"></canvas></div></div>
+  </div>
+
+  <div class="subpage" id="subpage-orderbook">
+    <div class="card" style="margin-bottom:16px"><div class="ob-sym-row"><span style="font-family:var(--mono);font-size:9px;color:var(--tx3);white-space:nowrap">Market:</span><div class="ob-sym-scroll" id="ob-sym-btns"></div></div>
+      <div class="ob-imb-wrap"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-family:var(--mono);font-size:9px;color:var(--gn);font-weight:700">BID PRESSURE</span><span style="font-family:var(--mono);font-size:11px;color:var(--tx);font-weight:700" id="ob-sym-lbl">—</span><span style="font-family:var(--mono);font-size:9px;color:var(--rd);font-weight:700">ASK PRESSURE</span></div>
+        <div class="ob-imb-bar"><div class="ob-imb-bid" id="ob-bid-bar" style="width:50%"><span class="ob-imb-lbl" id="ob-bid-pct">50%</span></div><div class="ob-imb-ask" id="ob-ask-bar" style="width:50%"><span class="ob-imb-lbl" id="ob-ask-pct">50%</span></div></div>
+        <div class="ob-metrics"><div class="ob-metric"><div class="ob-metric-l">Bid Depth (USD)</div><div class="ob-metric-v gn" id="ob-bid-depth">—</div></div><div class="ob-metric"><div class="ob-metric-l">Spread</div><div class="ob-metric-v ac" id="ob-spread">—</div></div><div class="ob-metric"><div class="ob-metric-l">Ask Depth (USD)</div><div class="ob-metric-v rd" id="ob-ask-depth">—</div></div></div>
+        <div style="margin-top:10px;padding:9px 12px;background:var(--bg2);border:1px solid var(--bd);border-radius:1px"><span style="font-family:var(--mono);font-size:9px;color:var(--tx3)">SIGNAL  </span><span style="font-family:var(--mono);font-size:12px;font-weight:700" id="ob-signal">—</span></div>
+      </div>
+    </div>
+    <div class="ob-layout"><div class="card"><div class="ob-side-hd asks">ASKS — sell orders</div><div id="ob-asks" style="max-height:360px;overflow:auto"></div></div><div class="card"><div class="ob-side-hd bids">BIDS — buy orders</div><div id="ob-bids" style="max-height:360px;overflow:auto"></div></div></div>
+    <div class="card"><div class="card-hd"><div class="card-ttl">Imbalance History</div><span class="bdg bdg-c">bid% last 60 ticks · updates every 2s</span></div><div class="chart-wrap"><canvas class="cc" id="ob-history-chart"></canvas></div></div>
+  </div>
+
+  <!-- Whale Watcher sub-page -->
+  <div class="subpage" id="subpage-whale">
+    <div class="wh-stats3">
+      <div class="s-card"><div class="s-lbl">Whale Trades Detected</div><div class="s-val yw" id="wh-count">0</div><div class="s-sub" id="wh-thresh-lbl">above $10K</div></div>
+      <div class="s-card"><div class="s-lbl">Largest Single Trade</div><div class="s-val ac" id="wh-largest">—</div><div class="s-sub">USD value</div></div>
+      <div class="s-card"><div class="s-lbl">Whale Volume</div><div class="s-val" id="wh-vol">$0</div><div class="s-sub">cumulative session</div></div>
+    </div>
+    <div class="whale-layout">
+      <div class="card"><div class="card-hd"><div class="card-ttl">Live Whale Feed</div><div style="display:flex;align-items:center;gap:8px"><span style="font-family:var(--mono);font-size:9px;color:var(--tx3)">min $</span><select id="whale-threshold" onchange="setWhaleThreshold(this.value)" style="background:var(--bg2);border:1px solid var(--bd);color:var(--tx);font-family:var(--mono);font-size:9px;padding:3px 6px;border-radius:1px;outline:none"><option value="1000">1K</option><option value="5000">5K</option><option value="10000" selected>10K</option><option value="50000">50K</option><option value="100000">100K</option><option value="250000">250K</option></select><span class="bdg bdg-c" id="wh-feed-cnt">0</span></div></div><div style="overflow:auto;max-height:440px"><table class="whale-table"><thead><tr><th>Time</th><th>Market</th><th>Direction</th><th>Size (USD)</th><th>Price</th><th>Type</th><th>Action</th></tr></thead><tbody id="whale-tbody"><tr><td colspan="6"><div class="skel-row"><div class="skel-line skel-line-sm skeleton"></div><div class="skel-line skel-line-md skeleton"></div><div class="skel-line skel-line-lg skeleton" style="margin-left:auto"></div></div></td></tr></tbody></table></div></div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="card"><div class="card-hd"><div class="card-ttl">Whale Alerts</div><span class="bdg bdg-y" id="wh-alert-cnt">0</span></div><div class="whale-alert-list" id="whale-alert-list"><div style="padding:12px;font-family:var(--mono);font-size:10px;color:var(--tx3)">Waiting for large trades...</div></div></div>
+        <div class="card"><div class="card-hd"><div class="card-ttl">Whale Activity by Market</div></div><div class="dom-list" id="wh-market-list" style="padding:12px 14px"><div style="font-family:var(--mono);font-size:10px;color:var(--tx3)">Accumulating...</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PAGE: LIQUIDATIONS ════ -->
+<div class="page" id="page-liquidation">
+    <div class="liq-kpi-strip">
+      <div class="liq-kpi liq-1h"><div class="liq-kpi-ttl">1h Rekt</div><div class="liq-kpi-total" id="liq-total-1h">—</div><div class="liq-kpi-row"><div class="liq-kpi-side"><span class="liq-kpi-side-lbl">Long</span><span class="liq-kpi-side-val gn" id="liq-long-1h">—</span></div><div class="liq-kpi-side"><span class="liq-kpi-side-lbl">Short</span><span class="liq-kpi-side-val rd" id="liq-short-1h">—</span></div></div></div>
+      <div class="liq-kpi liq-4h"><div class="liq-kpi-ttl">4h Rekt</div><div class="liq-kpi-total" id="liq-total-4h">—</div><div class="liq-kpi-row"><div class="liq-kpi-side"><span class="liq-kpi-side-lbl">Long</span><span class="liq-kpi-side-val gn" id="liq-long-4h">—</span></div><div class="liq-kpi-side"><span class="liq-kpi-side-lbl">Short</span><span class="liq-kpi-side-val rd" id="liq-short-4h">—</span></div></div></div>
+      <div class="liq-kpi liq-12h"><div class="liq-kpi-ttl">12h Rekt</div><div class="liq-kpi-total" id="liq-total-12h">—</div><div class="liq-kpi-row"><div class="liq-kpi-side"><span class="liq-kpi-side-lbl">Long</span><span class="liq-kpi-side-val gn" id="liq-long-12h">—</span></div><div class="liq-kpi-side"><span class="liq-kpi-side-lbl">Short</span><span class="liq-kpi-side-val rd" id="liq-short-12h">—</span></div></div></div>
+      <div class="liq-kpi liq-24h"><div class="liq-kpi-ttl">24h Rekt</div><div class="liq-kpi-total" id="liq-total-24h">—</div><div class="liq-kpi-row"><div class="liq-kpi-side"><span class="liq-kpi-side-lbl">Long</span><span class="liq-kpi-side-val gn" id="liq-long-24h">—</span></div><div class="liq-kpi-side"><span class="liq-kpi-side-lbl">Short</span><span class="liq-kpi-side-val rd" id="liq-short-24h">—</span></div></div></div>
+    </div>
+    <div class="liq-heatmap-wrap">
+      <div class="card"><div class="card-hd" style="flex-wrap:wrap;gap:8px"><div class="card-ttl">Liquidation Heatmap</div><div class="hm-time-btns" style="padding:0;display:flex;flex-direction:row;gap:4px;align-items:center"><div class="hm-tbtn on" onclick="setLiqTime('1h',this)">1H</div><div class="hm-tbtn" onclick="setLiqTime('4h',this)">4H</div><div class="hm-tbtn" onclick="setLiqTime('12h',this)">12H</div><div class="hm-tbtn" onclick="setLiqTime('24h',this)">24H</div></div><span class="bdg bdg-g">LONG DOM</span><span class="bdg bdg-r" style="background:rgba(255,53,82,.1);color:var(--rd);border-color:rgba(255,53,82,.3)">SHORT DOM</span><span class="bdg bdg-y">NEUTRAL</span></div><div class="hm-container" id="liq-heatmap"></div></div>
+      <div class="liq-total-card"><div class="card-hd"><div class="card-ttl">Total Liquidations</div><div style="display:flex;gap:6px"><span class="bdg bdg-g">LONG</span><span class="bdg" style="background:rgba(255,53,82,.1);color:var(--rd);border:1px solid rgba(255,53,82,.3)">SHORT</span></div></div>
+        <div class="liq-period-grid">
+          <div class="liq-period-cell"><div class="liq-period-lbl">1h Rekt</div><div class="liq-period-total" id="lp-total-1h">—</div><div class="liq-period-sides"><span class="liq-period-long" id="lp-long-1h">— Long</span><span class="liq-period-short" id="lp-short-1h">— Short</span></div></div>
+          <div class="liq-period-cell"><div class="liq-period-lbl">4h Rekt</div><div class="liq-period-total" id="lp-total-4h">—</div><div class="liq-period-sides"><span class="liq-period-long" id="lp-long-4h">— Long</span><span class="liq-period-short" id="lp-short-4h">— Short</span></div></div>
+          <div class="liq-period-cell"><div class="liq-period-lbl">12h Rekt</div><div class="liq-period-total" id="lp-total-12h">—</div><div class="liq-period-sides"><span class="liq-period-long" id="lp-long-12h">— Long</span><span class="liq-period-short" id="lp-short-12h">— Short</span></div></div>
+          <div class="liq-period-cell"><div class="liq-period-lbl">24h Rekt</div><div class="liq-period-total" id="lp-total-24h">—</div><div class="liq-period-sides"><span class="liq-period-long" id="lp-long-24h">— Long</span><span class="liq-period-short" id="lp-short-24h">— Short</span></div></div>
+        </div>
+        <div class="liq-summary-text" id="liq-summary-text">Connecting to Pacifica WebSocket for live liquidation data...</div>
+      </div>
+    </div>
+    <div class="liq-main-grid">
+      <div class="card"><div class="card-hd"><div class="card-ttl">Exchange Liquidations</div><div style="display:flex;gap:6px"><div class="hm-tbtn on" onclick="setExchPeriod('4h',this)" style="padding:3px 8px">4H</div><div class="hm-tbtn" onclick="setExchPeriod('12h',this)" style="padding:3px 8px">12H</div><div class="hm-tbtn" onclick="setExchPeriod('24h',this)" style="padding:3px 8px">24H</div></div></div><div style="overflow:auto"><table class="exch-table"><thead><tr><th>Exchange</th><th>Liquidations</th><th>Long</th><th>Short</th><th>Share</th><th>Dominance</th></tr></thead><tbody id="exch-tbody"></tbody></table></div></div>
+      <div class="card"><div class="card-hd"><div class="card-ttl">Long / Short Liquidation Ratio</div><span class="bdg bdg-c">by market · session</span></div><div style="overflow:auto;max-height:340px"><table class="exch-table"><thead><tr><th>Market</th><th>Long Liq</th><th>Short Liq</th><th>Ratio</th><th>Bias</th></tr></thead><tbody id="lsratio-tbody"></tbody></table></div></div>
+    </div>
+    <div class="liq-chart-row">
+      <div class="card"><div class="card-hd"><div class="card-ttl">Liquidation History</div><div style="display:flex;gap:6px"><div class="hm-tbtn on" onclick="setHistPeriod('1h',this)" style="padding:3px 8px">1H</div><div class="hm-tbtn" onclick="setHistPeriod('4h',this)" style="padding:3px 8px">4H</div><div class="hm-tbtn" onclick="setHistPeriod('24h',this)" style="padding:3px 8px">24H</div></div></div><div class="chart-wrap"><canvas class="cc-tall" id="liq-history-chart"></canvas></div></div>
+      <div class="card"><div class="card-hd"><div class="card-ttl">Liquidation by Market</div><span class="bdg bdg-c">session totals</span></div><div class="dom-list" id="liq-market-dom"></div></div>
+    </div>
+    <div class="liq-feed-wrap">
+      <div class="card"><div class="card-hd"><div class="card-ttl">Real-Time Liquidations</div><div style="display:flex;align-items:center;gap:8px"><span style="font-family:var(--mono);font-size:9px;color:var(--tx3)">min $</span><select id="liq-feed-min" onchange="setLiqFeedMin(this.value)" style="background:var(--bg2);border:1px solid var(--bd);color:var(--tx);font-family:var(--mono);font-size:9px;padding:3px 6px;border-radius:1px;outline:none"><option value="100">100</option><option value="500">500</option><option value="1000" selected>1K</option><option value="5000">5K</option><option value="10000">10K</option><option value="50000">50K</option></select><span class="bdg bdg-r" style="background:rgba(255,53,82,.1);color:var(--rd);border:1px solid rgba(255,53,82,.3)" id="liq-feed-cnt">0</span></div></div><div class="liq-feed"><table class="liq-feed-table"><thead><tr><th>Symbol</th><th>Direction</th><th>Value</th><th>Price</th><th>Time</th></tr></thead><tbody id="liq-feed-tbody"><tr><td colspan="5"><div class="skel-row"><div class="skel-line skel-line-sm skeleton"></div><div class="skel-line skel-line-md skeleton"></div><div class="skel-line skel-line-sm skeleton" style="margin-left:auto"></div></div><div class="skel-row"><div class="skel-line skel-line-sm skeleton"></div><div class="skel-line skel-line-md skeleton"></div><div class="skel-line skel-line-sm skeleton" style="margin-left:auto"></div></div></td></tr></tbody></table></div></div>
+      <div class="card"><div class="card-hd"><div class="card-ttl">Top 10 Liquidation Events — All Time</div></div><div style="overflow:auto"><table class="top10-table"><thead><tr><th>#</th><th>Symbol</th><th>Side</th><th>Value</th><th>Price</th><th>Time</th></tr></thead><tbody id="top10-tbody"></tbody></table></div></div>
+    </div>
+</div>
+
+</main>
+
+<!-- ═══ SEARCH MODAL (Ctrl+K) ═══ -->
+<div class="search-overlay" id="search-overlay" style="display:none" onclick="if(event.target===this)closeSearch()">
+  <div class="search-modal">
+    <div class="search-input-wrap">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;color:var(--tx3)"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M11 11L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <input type="text" id="search-input" class="search-inp" placeholder="Search coins, markets..." autocomplete="off" oninput="onSearchInput(this.value)">
+      <kbd class="search-kbd">ESC</kbd>
+    </div>
+    <div class="search-results" id="search-results">
+      <div class="search-hint">Type a coin name or symbol to search</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ NOTIFICATIONS PANEL ═══ -->
+<div class="notif-panel" id="notif-panel" style="display:none">
+  <div class="notif-hd">
+    <span class="notif-title">Notifications</span>
+    <button class="notif-clear" onclick="clearNotifs()">Clear all</button>
+  </div>
+  <div class="notif-list" id="notif-list">
+    <div class="empty-state" style="padding:30px 16px">
+      <div class="empty-state-icon" style="width:40px;height:40px;font-size:18px">&#x1F514;</div>
+      <div class="empty-state-desc">No notifications yet</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SETTINGS PANEL ═══ -->
+<div class="settings-panel" id="settings-panel" style="display:none">
+  <div class="notif-hd">
+    <span class="notif-title">Settings</span>
+    <button class="notif-clear" onclick="closeSettings()">Close</button>
+  </div>
+  <div style="padding:14px;display:flex;flex-direction:column;gap:14px">
+    <div class="settings-row">
+      <span class="settings-label">Theme</span>
+      <div style="display:flex;gap:6px">
+        <button class="theme-btn on" id="theme-light-btn" onclick="setTheme('light')">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.5 3.5l1.4 1.4M11.1 11.1l1.4 1.4M12.5 3.5l-1.4 1.4M4.9 11.1l-1.4 1.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Light
+        </button>
+        <button class="theme-btn" id="theme-dark-btn" onclick="setTheme('dark')">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13.5 8.5a5.5 5.5 0 01-6-6A5.5 5.5 0 108 14a5.5 5.5 0 005.5-5.5z" stroke="currentColor" stroke-width="1.3"/></svg>
+          Dark
+        </button>
+      </div>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Sound Alerts</span>
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+        <input type="checkbox" id="setting-sound" onchange="saveSetting('sound',this.checked)" style="accent-color:var(--ac)">
+        <span style="font-family:var(--mono);font-size:10px;color:var(--tx2)" id="sound-label">Off</span>
+      </label>
+    </div>
+    <div class="settings-divider"></div>
+    <div style="font-family:var(--mono);font-size:9px;color:var(--tx3)">v2.0 · Settings saved locally</div>
+  </div>
+</div>
+
+<!-- ═══ PNL CALCULATOR MODAL ═══ -->
+<div class="pnl-calc-overlay" id="pnl-calc-overlay" style="display:none" onclick="if(event.target===this)closePnlCalc()">
+  <div class="pnl-calc-modal">
+    <div class="notif-hd">
+      <span class="notif-title">PnL Calculator</span>
+      <button class="notif-clear" onclick="closePnlCalc()">Close</button>
+    </div>
+    <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+      <div class="settings-row">
+        <span class="settings-label">Entry Price</span>
+        <input type="number" id="pnl-entry" class="settings-select" placeholder="0.00" style="width:120px" oninput="calcPnl()">
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">Exit Price</span>
+        <input type="number" id="pnl-exit" class="settings-select" placeholder="0.00" style="width:120px" oninput="calcPnl()">
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">Position Size ($)</span>
+        <input type="number" id="pnl-size" class="settings-select" placeholder="1000" value="1000" style="width:120px" oninput="calcPnl()">
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">Leverage</span>
+        <input type="number" id="pnl-leverage" class="settings-select" placeholder="1" value="1" min="1" max="100" style="width:120px" oninput="calcPnl()">
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">Direction</span>
+        <select id="pnl-dir" class="settings-select" onchange="calcPnl()"><option value="long">Long</option><option value="short">Short</option></select>
+      </div>
+      <div class="settings-divider"></div>
+      <div class="pnl-result" id="pnl-result">
+        <div class="pnl-res-row"><span>PnL</span><span id="pnl-res-pnl" class="pnl-res-val">$0.00</span></div>
+        <div class="pnl-res-row"><span>ROI</span><span id="pnl-res-roi" class="pnl-res-val">0.00%</span></div>
+        <div class="pnl-res-row"><span>Liq. Price (est.)</span><span id="pnl-res-liq" class="pnl-res-val">—</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ COIN PRICE CHART MODAL ═══ -->
+<div class="search-overlay" id="coin-chart-overlay" style="display:none" onclick="if(event.target===this)closeCoinChart()">
+  <div class="search-modal" style="width:580px">
+    <div class="notif-hd">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span id="cc-icon"></span>
+        <span class="notif-title" id="cc-title">—</span>
+        <span class="bdg bdg-c" id="cc-sym">—</span>
+      </div>
+      <button class="notif-clear" onclick="closeCoinChart()">Close</button>
+    </div>
+    <div style="padding:16px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px">
+        <div>
+          <span style="font-family:var(--mono);font-size:24px;font-weight:700;color:var(--tx)" id="cc-price">—</span>
+          <span style="font-family:var(--mono);font-size:12px;font-weight:600;margin-left:8px" id="cc-change">—</span>
+        </div>
+        <div style="display:flex;gap:4px" id="cc-tf-btns">
+          <button class="an-tbtn on" onclick="loadCoinChart(window._ccSym,'1')" data-cctf="1">24h</button>
+          <button class="an-tbtn" onclick="loadCoinChart(window._ccSym,'7')" data-cctf="7">7d</button>
+          <button class="an-tbtn" onclick="loadCoinChart(window._ccSym,'30')" data-cctf="30">30d</button>
+          <button class="an-tbtn" onclick="loadCoinChart(window._ccSym,'90')" data-cctf="90">90d</button>
+        </div>
+      </div>
+      <canvas id="cc-chart" style="width:100%;height:200px"></canvas>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px" id="cc-stats">
+        <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:10px;text-align:center">
+          <div style="font-family:var(--mono);font-size:8px;color:var(--tx3);text-transform:uppercase;margin-bottom:4px">Market Cap</div>
+          <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--tx)" id="cc-mcap">—</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:10px;text-align:center">
+          <div style="font-family:var(--mono);font-size:8px;color:var(--tx3);text-transform:uppercase;margin-bottom:4px">24h Volume</div>
+          <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--tx)" id="cc-vol24">—</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:10px;text-align:center">
+          <div style="font-family:var(--mono);font-size:8px;color:var(--tx3);text-transform:uppercase;margin-bottom:4px">24h High</div>
+          <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--gn)" id="cc-high">—</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:10px;text-align:center">
+          <div style="font-family:var(--mono);font-size:8px;color:var(--tx3);text-transform:uppercase;margin-bottom:4px">24h Low</div>
+          <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--rd)" id="cc-low">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PRICE ALERTS MODAL ═══ -->
+<div class="search-overlay" id="price-alerts-overlay" style="display:none" onclick="if(event.target===this)closePriceAlerts()">
+  <div class="pnl-calc-modal">
+    <div class="notif-hd">
+      <span class="notif-title" data-i18n="price_alerts">Price Alerts</span>
+      <button class="notif-clear" onclick="closePriceAlerts()">Close</button>
+    </div>
+    <div style="padding:14px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;gap:8px">
+        <input type="text" id="pa-sym" class="settings-select" placeholder="BTC" style="width:80px;text-transform:uppercase">
+        <select id="pa-dir" class="settings-select"><option value="above">Above</option><option value="below">Below</option></select>
+        <input type="number" id="pa-price" class="settings-select" placeholder="Price" style="flex:1">
+        <button class="empty-state-btn" onclick="addPriceAlert()" style="margin:0;font-size:10px;padding:6px 12px">Add</button>
+      </div>
+      <div id="pa-list" style="max-height:260px;overflow-y:auto"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PORTFOLIO TRACKER MODAL ═══ -->
+<div class="search-overlay" id="portfolio-overlay" style="display:none" onclick="if(event.target===this)closePortfolio()">
+  <div class="search-modal" style="width:560px">
+    <div class="notif-hd">
+      <span class="notif-title" data-i18n="portfolio">Portfolio Tracker</span>
+      <button class="notif-clear" onclick="closePortfolio()">Close</button>
+    </div>
+    <div style="padding:14px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="text" id="pf-sym" class="settings-select" placeholder="BTC" style="width:70px;text-transform:uppercase">
+        <input type="number" id="pf-amount" class="settings-select" placeholder="Amount" style="width:90px">
+        <input type="number" id="pf-entry" class="settings-select" placeholder="Entry $" style="width:90px">
+        <select id="pf-side" class="settings-select"><option value="long">Long</option><option value="short">Short</option></select>
+        <button class="empty-state-btn" onclick="addPortfolioPos()" style="margin:0;font-size:10px;padding:6px 12px">Add</button>
+      </div>
+      <div style="display:flex;gap:10px;margin:4px 0">
+        <div class="pnl-result" style="flex:1;padding:10px">
+          <div class="pnl-res-row"><span data-i18n="total_value">Total Value</span><span id="pf-total" class="pnl-res-val">$0</span></div>
+          <div class="pnl-res-row"><span data-i18n="total_pnl">Total PnL</span><span id="pf-pnl" class="pnl-res-val">$0</span></div>
+        </div>
+      </div>
+      <div id="pf-list" style="max-height:240px;overflow-y:auto"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-left">
+      <span class="footer-brand">PacificaLens</span>
+      <span class="footer-ver">v2.0</span>
+      <span class="footer-sep">·</span>
+      <span class="footer-copy">Real-time perpetual analytics</span>
+    </div>
+    <div class="footer-links">
+      <a href="https://pacifica.fi" target="_blank">Pacifica</a>
+      <a href="https://github.com" target="_blank">GitHub</a>
+      <a href="https://twitter.com" target="_blank">Twitter</a>
+      <a href="https://discord.com" target="_blank">Discord</a>
+    </div>
+    <div class="footer-right">
+      <span class="footer-keys">Ctrl+K Search · 1-5 Tabs · F Favorite</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Three.js for 3D globe -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<!-- JS -->
+<script src="src/js/config.js"></script>
+<script src="src/js/state.js"></script>
+<script src="src/js/utils.js"></script>
+<script src="src/js/modules/intel.js"></script>
+<script src="src/js/modules/websocket.js"></script>
+<script src="src/js/modules/overview.js"></script>
+<script src="src/js/modules/wallet.js"></script>
+<script src="src/js/modules/pnl.js"></script>
+<script src="src/js/modules/ai.js"></script>
+<script src="src/js/modules/arbitrage.js"></script>
+<script src="src/js/modules/alerts.js"></script>
+<script src="src/js/modules/analytics.js"></script>
+<script src="src/js/modules/liquidation.js"></script>
+<script src="src/js/modules/whale.js"></script>
+<script src="src/js/modules/orderbook.js"></script>
+<script src="src/js/modules/markets.js"></script>
+<script src="src/js/modules/coindetail.js"></script>
+<script src="src/js/modules/demo.js"></script>
+<script src="src/js/modules/dashboard.js"></script>
+<script src="src/js/app.js"></script>
+
+</body>
+</html>
