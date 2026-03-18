@@ -1,0 +1,13 @@
+{
+  "name": "pacifica-lens",
+  "version": "2.1.0",
+  "description": "Live Trading Intelligence for Pacifica perpetuals",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'Static site - no build step required'",
+    "dev": "npx serve ."
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
