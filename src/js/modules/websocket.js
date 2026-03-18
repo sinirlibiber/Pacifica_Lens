@@ -202,43 +202,70 @@ function renderHeatmap(){
   });
 }
 
-/* ── Market sparkline grid ── */
+/* ── Market heatmap grid — 60 markets, 6×10 ── */
 const sparkBuf = {}; // sym → [prices]
 function renderMarketGrid(){
   const grid = $('mk-grid');
   if(!grid) return;
-  const syms = Object.keys(prices);
-  if(!syms.length){
-    grid.innerHTML = '<div style="grid-column:1/-1;padding:20px;text-align:center;color:var(--tx3);font-size:10px;font-family:var(--mono)">Connecting to WebSocket...</div>';
+
+  // Collect all symbols: from prices (live) + MARKETS_COINS (static fallback)
+  let allCoins = [];
+  if(typeof MARKETS_COINS !== 'undefined'){
+    allCoins = MARKETS_COINS.slice(0, 60).map(c => {
+      const live = prices[c.sym] || {};
+      return {
+        sym: c.sym,
+        name: c.name,
+        price: live.mark || c.price,
+        chg: live.change || c.chg24 || 0,
+        vol: live.vol || 0,
+      };
+    });
+  } else {
+    allCoins = Object.entries(prices).slice(0, 60).map(([sym, p]) => ({
+      sym,
+      name: sym,
+      price: p.mark,
+      chg: p.change || 0,
+      vol: p.vol || 0,
+    }));
+  }
+
+  if(!allCoins.length){
+    grid.innerHTML = '<div style="grid-column:1/-1;padding:20px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--tx3)">Loading markets...</div>';
     return;
   }
-  grid.innerHTML = syms.slice(0,24).map(sym => {
-    const p = prices[sym] || {};
-    const chg = p.change || ((p.mark - p.prev) / (p.prev||p.mark||1) * 100);
-    const cls = chg >= 0 ? 'gn' : 'rd';
-    const icon = coinIconHTML(sym, 16, '50%');
-    const priceStr = p.mark ? fmtPrice(p.mark) : '—';
-    return `<div class="mk-cell">
-      <div class="mk-top">
-        <div style="display:flex;align-items:center;gap:4px">
-          ${icon}<span class="mk-sym">${sym}</span>
-        </div>
-        <span class="mk-chg ${cls}">${chg>=0?'+':''}${chg.toFixed(2)}%</span>
-      </div>
-      <div class="mk-price">$${priceStr}</div>
-      <canvas id="mk-sp-${sym}" class="mk-spark" width="100" height="28"></canvas>
-    </div>`;
+
+  grid.innerHTML = allCoins.map(c => {
+    const isUp = c.chg >= 0;
+    const absChg = Math.abs(c.chg);
+    const intensity = absChg < 2 ? '1' : absChg < 5 ? '2' : '3';
+    const cls = (isUp ? 'up' : 'dn') + '-' + intensity;
+    const chgColor = isUp ? 'var(--gn)' : 'var(--rd)';
+    const icon = COIN_IMG[c.sym.toUpperCase()] || COIN_IMG[c.sym];
+    const color = COIN_COLORS[c.sym.toUpperCase()] || COIN_COLORS.DEFAULT || '#3b82f6';
+
+    let iconHTML;
+    if(icon){
+      iconHTML = '<img class="hm60-icon" src="' + icon + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'" alt="' + c.sym + '">' +
+        '<div class="hm60-fallback" style="display:none;background:' + color + '22;color:' + color + '">' + c.sym.slice(0,2) + '</div>';
+    } else {
+      iconHTML = '<div class="hm60-fallback" style="background:' + color + '22;color:' + color + ';display:flex">' + c.sym.slice(0,2) + '</div>';
+    }
+
+    const priceStr = c.price >= 10000 ? '$' + (c.price/1000).toFixed(1) + 'K'
+      : c.price >= 100 ? '$' + Math.round(c.price)
+      : c.price >= 1 ? '$' + c.price.toFixed(2)
+      : c.price >= 0.01 ? '$' + c.price.toFixed(3)
+      : '$' + c.price.toFixed(4);
+
+    return '<div class="hm60-cell ' + cls + '" onclick="openCoinChart(\'' + c.sym + '\')" title="' + c.name + ' · ' + c.sym + '">' +
+      iconHTML +
+      '<div class="hm60-sym">' + c.sym + '</div>' +
+      '<div class="hm60-price">' + priceStr + '</div>' +
+      '<div class="hm60-chg" style="color:' + chgColor + '">' + (isUp?'+':'') + c.chg.toFixed(1) + '%</div>' +
+      '</div>';
   }).join('');
-  // Draw sparklines after DOM update
-  requestAnimationFrame(() => {
-    syms.slice(0,24).forEach(sym => {
-      const ph = (typeof priceHistory !== 'undefined') ? priceHistory[sym] : null;
-      if(ph && ph.length > 2){
-        const chg = prices[sym]?.change || 0;
-        drawSpark('mk-sp-'+sym, ph.map(h=>h.p||h), chg>=0?'#22d3a5':'#f43f5e');
-      }
-    });
-  });
 }
 
 function drawSpark(id,pts,color){

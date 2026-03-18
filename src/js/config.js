@@ -170,6 +170,16 @@ const COIN_IMG = {
   KPEPE:  'https://assets.coingecko.com/coins/images/29850/small/pepe-token.jpeg',
   LTC:    'https://assets.coingecko.com/coins/images/2/small/litecoin.png',
   AVAX:   'https://assets.coingecko.com/coins/images/12559/small/Avalanche_Circle_RedWhite_Trans.png',
+  ILD:    'https://assets.coingecko.com/coins/images/40700/small/infinex.jpg',
+  LFI:    'https://assets.coingecko.com/coins/images/28212/small/lfi.png',
+  IF:     'https://assets.coingecko.com/coins/images/40701/small/infinix.jpg',
+  COPPE:  'https://assets.coingecko.com/coins/images/50150/small/copper.jpg',
+  EURUSI: 'https://assets.coingecko.com/coins/images/6319/small/usdc.png',
+  XPL:    'https://assets.coingecko.com/coins/images/50149/small/xpl.jpg',
+  WLFI:   'https://assets.coingecko.com/coins/images/39253/small/world-liberty-financial.png',
+  NATGA:  'https://assets.coingecko.com/coins/images/50152/small/natgas.jpg',
+  NATGAS: 'https://assets.coingecko.com/coins/images/50152/small/natgas.jpg',
+  WLD:    'https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg',
 
 };
 

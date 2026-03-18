@@ -1832,3 +1832,99 @@ canvas.cc-sm  { height: 160px !important; }
   color: var(--tx2) !important;
   font-weight: 600 !important;
 }
+
+/* ═══════════════════════════════════════════
+   60-MARKET HEATMAP GRID — 6 rows × 10 cols
+═══════════════════════════════════════════ */
+.heatmap-60 {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 3px;
+  margin-bottom: 20px;
+  border-radius: var(--r2);
+  overflow: hidden;
+}
+.hm60-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform .15s, filter .15s;
+  min-height: 60px;
+  position: relative;
+  overflow: hidden;
+}
+.hm60-cell:hover {
+  transform: scale(1.04);
+  filter: brightness(1.08);
+  z-index: 2;
+}
+.hm60-cell.up {
+  background: rgba(22,163,74,.1);
+  border: 1px solid rgba(22,163,74,.15);
+}
+.hm60-cell.dn {
+  background: rgba(239,68,68,.08);
+  border: 1px solid rgba(239,68,68,.12);
+}
+.hm60-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: contain;
+  margin-bottom: 3px;
+  flex-shrink: 0;
+}
+.hm60-fallback {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 7px;
+  font-weight: 700;
+  margin-bottom: 3px;
+  flex-shrink: 0;
+}
+.hm60-sym {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--tx);
+  line-height: 1;
+}
+.hm60-price {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--tx2);
+  margin-top: 2px;
+}
+.hm60-chg {
+  font-family: var(--mono);
+  font-size: 8px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* Intensity: deeper color = bigger change */
+.hm60-cell.up-1 { background: rgba(22,163,74,.06); }
+.hm60-cell.up-2 { background: rgba(22,163,74,.12); }
+.hm60-cell.up-3 { background: rgba(22,163,74,.2); }
+.hm60-cell.dn-1 { background: rgba(239,68,68,.06); }
+.hm60-cell.dn-2 { background: rgba(239,68,68,.12); }
+.hm60-cell.dn-3 { background: rgba(239,68,68,.2); }
+
+@media (max-width: 900px) {
+  .heatmap-60 { grid-template-columns: repeat(6, 1fr); }
+}
+@media (max-width: 600px) {
+  .heatmap-60 { grid-template-columns: repeat(4, 1fr); }
+  .hm60-cell { min-height: 50px; padding: 6px 3px; }
+  .hm60-sym { font-size: 9px; }
+  .hm60-price { font-size: 8px; }
+}
