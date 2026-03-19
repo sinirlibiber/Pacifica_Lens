@@ -125,7 +125,7 @@ function handlePrices(data){
 function handleTrades(data){
   if(!Array.isArray(data)) return;
   tradeCount+=data.length;
-  $('feed-cnt').textContent=tradeCount+' trades';
+  const feedCnt=$('feed-cnt'); if(feedCnt) feedCnt.textContent=tradeCount+' trades';
   data.forEach(t=>{
     const sym=t.s;
     const side=t.d||'';
@@ -135,12 +135,12 @@ function handleTrades(data){
     else lsVol[sym].s+=usd;
     if(t.tc&&t.tc!=='normal') liqCount++;
     addTradeToFeed(t,sym);
-    // Whale: store all, filter at render time
     whaleIngest(t,sym,usd);
+    // Update Overview live trades table
+    if(typeof updateDashTradesTable === 'function') updateDashTradesTable(sym, t.p, t.a, side);
   });
   renderLSRatio();
-  if(document.querySelector('#page-whale.on')) renderWhalePage();
-  // Her zaman overview panelini güncelle
+  if(document.querySelector('#subpage-whale.on')) renderWhalePage();
   updateOverviewWhale();
 }
 
@@ -311,7 +311,12 @@ function renderTicker(){
 /* ── LS Ratio ── */
 function renderLSRatio(){
   const wrap=$('ls-wrap');if(!wrap)return;
-  const loading=wrap.querySelector('.spin-w');if(loading)loading.remove();
+  // Clear skeleton on first real data
+  if(wrap.querySelector('.skel-row')){
+    const entries = Object.entries(lsVol);
+    if(entries.length > 0) wrap.innerHTML = '';
+    else return;
+  }
   Object.entries(lsVol).slice(0,6).forEach(([sym,{l,s}])=>{
     const tot=l+s||1,lp=(l/tot*100).toFixed(1),sp=(s/tot*100).toFixed(1);
     let el=$('ls-'+sym);

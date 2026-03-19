@@ -1262,7 +1262,7 @@ canvas.cc-sm  { height: 160px !important; }
 }
 
 /* ═══════════════════════════════════════════
-   COIN CHART MODAL — Enhanced
+   COIN CHART MODAL — Fixed
 ═══════════════════════════════════════════ */
 #coin-chart-overlay .search-modal {
   animation: dropIn .2s ease;
@@ -1271,6 +1271,8 @@ canvas.cc-sm  { height: 160px !important; }
   border-radius: 6px;
   background: var(--bg2);
   border: 1px solid var(--bd);
+  width: 100% !important;
+  height: 100% !important;
 }
 
 

@@ -585,97 +585,120 @@ function initGlobe() {
 
   globeScene = new THREE.Scene();
   globeCamera = new THREE.PerspectiveCamera(45, W / H, 0.1, 1000);
-  globeCamera.position.z = 2.8;
+  globeCamera.position.z = 2.6;
 
   globeRenderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   globeRenderer.setSize(W, H);
   globeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   globeRenderer.setClearColor(0x000000, 0);
 
-  // Earth sphere
-  const geo = new THREE.SphereGeometry(1, 48, 48);
-  const isDark = document.documentElement.dataset.theme === 'dark';
+  // Real Earth texture from NASA Blue Marble via CDN
+  const texLoader = new THREE.TextureLoader();
+  const earthTex = texLoader.load('https://cdn.jsdelivr.net/npm/three-globe@2.31.1/example/img/earth-blue-marble.jpg');
+  const bumpTex = texLoader.load('https://cdn.jsdelivr.net/npm/three-globe@2.31.1/example/img/earth-topology.png');
+
+  const geo = new THREE.SphereGeometry(1, 64, 64);
   const mat = new THREE.MeshPhongMaterial({
-    color: isDark ? 0x1a2744 : 0xd4e4f7,
-    emissive: isDark ? 0x0a1628 : 0xe8f0fa,
-    shininess: 10,
-    transparent: true,
-    opacity: 0.92,
+    map: earthTex,
+    bumpMap: bumpTex,
+    bumpScale: 0.02,
+    shininess: 15,
+    specular: new THREE.Color(0x222222),
   });
   globeMesh = new THREE.Mesh(geo, mat);
   globeScene.add(globeMesh);
 
-  // Wireframe overlay
-  const wireGeo = new THREE.SphereGeometry(1.002, 24, 24);
-  const wireMat = new THREE.MeshBasicMaterial({
-    color: isDark ? 0x38bdf8 : 0x3b82f6,
-    wireframe: true,
-    transparent: true,
-    opacity: isDark ? 0.08 : 0.06,
-  });
-  globeScene.add(new THREE.Mesh(wireGeo, wireMat));
-
   // Atmosphere glow
-  const atmosGeo = new THREE.SphereGeometry(1.05, 32, 32);
+  const atmosGeo = new THREE.SphereGeometry(1.06, 32, 32);
   const atmosMat = new THREE.MeshBasicMaterial({
-    color: isDark ? 0x38bdf8 : 0x3b82f6,
+    color: 0x4da6ff,
     transparent: true,
-    opacity: 0.04,
+    opacity: 0.06,
     side: THREE.BackSide,
   });
   globeScene.add(new THREE.Mesh(atmosGeo, atmosMat));
 
+  // Clouds layer (optional subtle effect)
+  const cloudTex = texLoader.load('https://cdn.jsdelivr.net/npm/three-globe@2.31.1/example/img/earth-water.png');
+  const cloudGeo = new THREE.SphereGeometry(1.01, 48, 48);
+  const cloudMat = new THREE.MeshPhongMaterial({
+    alphaMap: cloudTex,
+    transparent: true,
+    opacity: 0.08,
+    depthWrite: false,
+  });
+  const clouds = new THREE.Mesh(cloudGeo, cloudMat);
+  globeScene.add(clouds);
+
   // Lights
-  const amb = new THREE.AmbientLight(0xffffff, isDark ? 0.4 : 0.7);
+  const amb = new THREE.AmbientLight(0xffffff, 0.5);
   globeScene.add(amb);
-  const dir = new THREE.DirectionalLight(0xffffff, isDark ? 0.6 : 0.5);
+  const dir = new THREE.DirectionalLight(0xffffff, 0.8);
   dir.position.set(5, 3, 5);
   globeScene.add(dir);
+  const backLight = new THREE.DirectionalLight(0x4da6ff, 0.2);
+  backLight.position.set(-5, -2, -5);
+  globeScene.add(backLight);
 
-  // Add news markers
+  // News markers
   const activeRegions = ['US', 'EU', 'JP', 'CN', 'GB', 'SG', 'KR'];
   activeRegions.forEach(code => {
     const loc = NEWS_LOCATIONS[code];
     if (!loc) return;
     const pos = latLonToVec3(loc.lat, loc.lon, 1.02);
 
-    // Marker dot
-    const dotGeo = new THREE.SphereGeometry(0.02, 8, 8);
-    const dotMat = new THREE.MeshBasicMaterial({ color: isDark ? 0x38bdf8 : 0x3b82f6 });
+    // Glow ring
+    const ringGeo = new THREE.RingGeometry(0.025, 0.055, 16);
+    const ringMat = new THREE.MeshBasicMaterial({
+      color: 0x3b82f6,
+      transparent: true, opacity: 0.5, side: THREE.DoubleSide
+    });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.position.copy(pos);
+    ring.lookAt(0, 0, 0);
+    ring.userData = { pulse: true };
+    globeScene.add(ring);
+    globeMarkers.push(ring);
+
+    // Center dot
+    const dotGeo = new THREE.SphereGeometry(0.015, 8, 8);
+    const dotMat = new THREE.MeshBasicMaterial({ color: 0x60a5fa });
     const dot = new THREE.Mesh(dotGeo, dotMat);
     dot.position.copy(pos);
     dot.userData = { code, name: loc.name };
     globeScene.add(dot);
     globeMarkers.push(dot);
-
-    // Glow ring
-    const ringGeo = new THREE.RingGeometry(0.03, 0.06, 16);
-    const ringMat = new THREE.MeshBasicMaterial({
-      color: isDark ? 0x38bdf8 : 0x3b82f6,
-      transparent: true, opacity: 0.3, side: THREE.DoubleSide
-    });
-    const ring = new THREE.Mesh(ringGeo, ringMat);
-    ring.position.copy(pos);
-    ring.lookAt(0, 0, 0);
-    ring.userData = { pulse: true, baseScale: 1 };
-    globeScene.add(ring);
-    globeMarkers.push(ring);
   });
 
-  // Mouse rotation
+  // Mouse drag rotation
   let isDragging = false, prevMouse = { x: 0, y: 0 };
-  let rotVelX = 0.002, rotVelY = 0;
-  canvas.addEventListener('mousedown', e => { isDragging = true; prevMouse = { x: e.clientX, y: e.clientY }; });
+  let rotVelX = 0, rotVelY = 0;
+
+  canvas.addEventListener('mousedown', e => { isDragging = true; prevMouse = { x: e.clientX, y: e.clientY }; canvas.style.cursor = 'grabbing'; });
   canvas.addEventListener('mousemove', e => {
     if (!isDragging) return;
-    rotVelY = (e.clientX - prevMouse.x) * 0.005;
-    rotVelX = (e.clientY - prevMouse.y) * 0.003;
+    const dx = e.clientX - prevMouse.x;
+    const dy = e.clientY - prevMouse.y;
+    rotVelY = dx * 0.005;
+    rotVelX = dy * 0.003;
     prevMouse = { x: e.clientX, y: e.clientY };
   });
-  canvas.addEventListener('mouseup', () => isDragging = false);
-  canvas.addEventListener('mouseleave', () => isDragging = false);
+  canvas.addEventListener('mouseup', () => { isDragging = false; canvas.style.cursor = 'grab'; });
+  canvas.addEventListener('mouseleave', () => { isDragging = false; canvas.style.cursor = 'grab'; });
 
-  // Click detection for markers
+  // Touch support
+  canvas.addEventListener('touchstart', e => { isDragging = true; prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY }; }, {passive:true});
+  canvas.addEventListener('touchmove', e => {
+    if (!isDragging) return;
+    const dx = e.touches[0].clientX - prevMouse.x;
+    const dy = e.touches[0].clientY - prevMouse.y;
+    rotVelY = dx * 0.005;
+    rotVelX = dy * 0.003;
+    prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }, {passive:true});
+  canvas.addEventListener('touchend', () => { isDragging = false; });
+
+  // Click markers
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
   canvas.addEventListener('click', e => {
@@ -684,14 +707,12 @@ function initGlobe() {
     mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
     raycaster.setFromCamera(mouse, globeCamera);
     const hits = raycaster.intersectObjects(globeMarkers.filter(m => m.userData.code));
-    if (hits.length > 0) {
-      const code = hits[0].object.userData.code;
-      showRegionNews(code);
-    }
+    if (hits.length > 0) showRegionNews(hits[0].object.userData.code);
   });
 
   // Hover tooltip
   canvas.addEventListener('mousemove', e => {
+    if (isDragging) return;
     const rect = canvas.getBoundingClientRect();
     mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
     mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -707,7 +728,7 @@ function initGlobe() {
       canvas.style.cursor = 'pointer';
     } else {
       if (tt) tt.style.display = 'none';
-      canvas.style.cursor = isDragging ? 'grabbing' : 'grab';
+      if (!isDragging) canvas.style.cursor = 'grab';
     }
   });
 
@@ -716,29 +737,40 @@ function initGlobe() {
   function animate() {
     requestAnimationFrame(animate);
     t += 0.01;
+
     if (!isDragging) {
-      globeMesh.rotation.y += 0.002;
-      rotVelY *= 0.95;
-    } else {
-      globeMesh.rotation.y += rotVelY;
+      globeMesh.rotation.y += 0.001; // slow auto-rotate
+      rotVelY *= 0.92; // friction
+      rotVelX *= 0.92;
     }
-    // Sync all children rotation
-    globeScene.children.forEach(c => {
-      if (c !== globeMesh && c.type === 'Mesh') {
-        // Don't rotate markers, only the globe mesh and wireframe
-      }
-    });
+    globeMesh.rotation.y += rotVelY;
+    globeMesh.rotation.x += rotVelX;
+    globeMesh.rotation.x = Math.max(-Math.PI/3, Math.min(Math.PI/3, globeMesh.rotation.x));
+
+    // Sync clouds slightly faster
+    clouds.rotation.y = globeMesh.rotation.y * 1.05;
+    clouds.rotation.x = globeMesh.rotation.x;
+
     // Pulse rings
     globeMarkers.forEach(m => {
       if (m.userData.pulse) {
-        const s = 1 + 0.3 * Math.sin(t * 2 + Math.random());
+        const s = 1 + 0.3 * Math.sin(t * 2.5);
         m.scale.set(s, s, s);
-        m.material.opacity = 0.15 + 0.15 * Math.sin(t * 2);
+        m.material.opacity = 0.25 + 0.2 * Math.sin(t * 2);
       }
     });
+
     globeRenderer.render(globeScene, globeCamera);
   }
   animate();
+
+  // Handle resize
+  window.addEventListener('resize', () => {
+    const newW = canvas.parentElement.offsetWidth || 500;
+    globeCamera.aspect = newW / H;
+    globeCamera.updateProjectionMatrix();
+    globeRenderer.setSize(newW, H);
+  });
 }
 
 function showRegionNews(code) {
