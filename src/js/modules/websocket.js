@@ -109,9 +109,6 @@ function handlePrices(data){
       renderAlerts();
       renderArbBestOpportunity();
       if(document.querySelector('#page-arbitrage.on')) renderArbTable();
-      if(document.getElementById('page-markets')?.classList.contains('on')){
-        if(typeof renderIntelFRHeatmap==='function') renderIntelFRHeatmap();
-      }
       if(window.Chart) updateOverviewFRChart();
       updateOverviewWhale();
     }, 2500);

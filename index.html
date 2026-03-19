@@ -261,7 +261,7 @@
 
 <!-- ════ PAGE: INTELLIGENCE ════ -->
 <div class="page" id="page-markets">
-<div class="intel-layout" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:0 4px">
+<div class="intel-layout">
   <div class="intel-calendar">
     <div class="intel-panel-header"><span class="intel-panel-title">Economic Calendar</span>
       <div class="intel-cal-filters">
@@ -275,8 +275,18 @@
     </div>
     <div id="cal-list" class="cal-list"><div class="cal-loading">Loading calendar...</div></div>
   </div>
-  <div>
-    <div class="intel-panel-header"><span class="intel-panel-title">Market Overview</span><span id="intel-clock" class="intel-clock">--:-- UTC</span></div>
+  <div class="intel-center">
+    <div class="intel-panel-header"><span class="intel-panel-title">Global Market Intelligence</span><span id="intel-clock" class="intel-clock">--:-- AM</span></div>
+    <div class="world-map-wrap" id="globe-wrap" style="position:relative;min-height:340px;background:var(--bg2);border-radius:8px;overflow:hidden">
+      <canvas id="globe-canvas" style="width:100%;height:340px;display:block;cursor:grab;border-radius:8px"></canvas>
+      <div id="globe-tooltip" class="globe-tooltip" style="display:none;position:absolute;z-index:10;background:var(--bg1);border:1px solid var(--bd2);border-radius:6px;padding:8px 12px;font-family:var(--mono);font-size:10px;color:var(--tx);box-shadow:0 4px 16px rgba(0,0,0,.12);max-width:260px;pointer-events:none"></div>
+    </div>
+    <div class="map-region-pills">
+      <button class="map-rpill on" data-region="all">All</button>
+      <button class="map-rpill" data-region="US">US</button>
+      <button class="map-rpill" data-region="EU">EU</button>
+      <button class="map-rpill" data-region="JP">JP</button>
+    </div>
     <div class="intel-stats-row" id="intel-stats-row">
       <div class="istat-card"><div class="istat-lbl">Fear &amp; Greed</div><div class="istat-val" id="istat-fg">—</div></div>
       <div class="istat-card"><div class="istat-lbl">BTC Dom.</div><div class="istat-val" id="istat-dom">—</div></div>
@@ -284,10 +294,18 @@
       <div class="istat-card"><div class="istat-lbl">24h Volume</div><div class="istat-val" id="istat-vol">—</div></div>
       <div class="istat-card"><div class="istat-lbl">Active Events</div><div class="istat-val" id="istat-events">—</div></div>
     </div>
-    <div class="card" style="margin-top:12px">
-      <div class="card-hd"><div class="card-ttl">Funding Rate Heatmap</div><span class="bdg bdg-c">live from Pacifica</span></div>
-      <div id="intel-fr-heatmap" style="display:flex;flex-wrap:wrap;gap:6px;padding:12px"></div>
+  </div>
+  <div class="intel-news">
+    <div class="intel-panel-header"><span class="intel-panel-title">Global News</span>
+      <div class="news-feed-controls">
+        <button class="news-cat-pill on" data-cat="all">All</button>
+        <button class="news-cat-pill" data-cat="crypto">Crypto</button>
+        <button class="news-cat-pill" data-cat="macro">Macro</button>
+        <button class="news-cat-pill" data-cat="equities">Equities</button>
+      </div>
     </div>
+    <div id="news-feed-list" class="news-feed-list"><div class="news-loading">Fetching latest news...</div></div>
+    <div class="news-refresh-bar"><span id="news-last-update" class="news-ts">—</span><button class="news-refresh-btn" onclick="fetchIntelNews()">↻ Refresh</button></div>
   </div>
 </div>
 </div>
@@ -766,6 +784,7 @@
 
 
 <!-- JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="src/js/config.js"></script>
 <script src="src/js/state.js"></script>
 <script src="src/js/utils.js"></script>

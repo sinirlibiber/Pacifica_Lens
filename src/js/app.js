@@ -68,7 +68,8 @@ cs.onload=()=>{
 document.head.appendChild(cs);
 
 connectWS();
-setTimeout(seedMockPrices, 500);
+renderBotCode();
+setTimeout(seedMockPrices, 300);
 
 document.addEventListener('click', function(e){
   const pill = e.target.closest('.mpill');

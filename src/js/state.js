@@ -16,7 +16,7 @@ let charts = {};
 let chatHistory = [];
 let wsConnected = false;
 // Whale Watcher state
-let whaleMin = 10000;
+let whaleMin = 1000;
 const whaleRows = [];
 const whaleAlerts = [];
 const whaleByMkt = {};
