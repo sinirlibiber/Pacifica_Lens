@@ -417,6 +417,66 @@
 
   <!-- Arbitrage -->
   <div class="subpage" id="subpage-arbitrage">
+    <!-- ═══ CROSS-DEX ARBITRAGE — Pacifica vs Hyperliquid ═══ -->
+    <div class="sec" style="margin-bottom:8px;display:flex;align-items:center;gap:10px">
+      Cross-DEX Funding Arbitrage — Pacifica vs Hyperliquid
+      <span class="bdg bdg-p" style="font-size:8px">LIVE</span>
+      <span style="font-family:var(--mono);font-size:9px;color:var(--tx3);margin-left:auto">Last update: <span id="xdex-last-update">—</span></span>
+    </div>
+
+    <div class="stats5" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
+      <div class="s-card"><div class="s-lbl">Matched Markets</div><div class="s-val ac" id="xdex-matched">0</div><div class="s-sub">on both venues</div></div>
+      <div class="s-card"><div class="s-lbl">Best Cross-DEX APR</div><div class="s-val yw" id="xdex-best-apr">—</div><div class="s-sub" id="xdex-best-pair">scanning...</div></div>
+      <div class="s-card"><div class="s-lbl">Avg Spread APR</div><div class="s-val" id="xdex-avg-apr">—</div><div class="s-sub">across all pairs</div></div>
+      <div class="s-card"><div class="s-lbl">Sim. Profit ($10K)</div><div class="s-val gn" id="xdex-strat-sim">—</div><div class="s-sub">30-day @ best APR</div></div>
+    </div>
+
+    <div class="arb-main-row" style="margin-bottom:14px">
+      <div class="card">
+        <div class="card-hd">
+          <div class="card-ttl">Cross-DEX Arbitrage Opportunities</div>
+          <span class="bdg bdg-p">Pacifica ↔ Hyperliquid</span>
+        </div>
+        <div style="overflow:auto;max-height:380px;">
+          <table class="arb-table">
+            <thead><tr>
+              <th>Market</th>
+              <th>Pacifica FR/8h</th>
+              <th>Hyperliquid FR/8h</th>
+              <th>Spread</th>
+              <th>APR</th>
+              <th>Strategy</th>
+              <th>Price Δ</th>
+              <th>Signal</th>
+            </tr></thead>
+            <tbody id="xdex-tbody">
+              <tr><td colspan="8" style="padding:20px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--tx3)">Fetching Hyperliquid data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-ttl">Cross-DEX Spread APR</div><span class="bdg bdg-p">Pacifica vs HL</span></div>
+        <div class="chart-wrap"><canvas class="cc-sm" id="xdex-chart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="arb-info-row" style="margin-bottom:20px">
+      <div class="strat-card">
+        <div class="strat-head"><div class="strat-name">⚡ Best Cross-DEX Opportunity</div><span class="bdg bdg-p">Pacifica ↔ Hyperliquid</span></div>
+        <div class="strat-body" id="xdex-strat-body">Scanning funding rate differences between Pacifica and Hyperliquid...</div>
+        <div class="strat-metrics">
+          <div class="strat-m"><div class="strat-ml">Spread APR</div><div class="strat-mv yw" id="xdex-strat-apr">—</div></div>
+          <div class="strat-m"><div class="strat-ml">Monthly Return</div><div class="strat-mv gn" id="xdex-strat-monthly">—</div></div>
+        </div>
+      </div>
+      <div class="strat-card" style="margin:0">
+        <div class="strat-head"><div class="strat-name">How It Works</div><span class="bdg bdg-c">cross-venue</span></div>
+        <div class="strat-body" style="margin-bottom:0">Compare funding rates between Pacifica and Hyperliquid perpetuals. When a coin has significantly different funding on each venue, go long where funding is lower (you receive) and short where it's higher (you pay less). The spread is your profit — delta-neutral across venues.</div>
+      </div>
+    </div>
+
+    <div class="sec" style="margin-bottom:8px">Pacifica Internal Arbitrage</div>
     <div class="stats5" style="grid-template-columns:repeat(5,1fr);margin-bottom:14px" id="arb-perf-grid">
       <div class="s-card"><div class="s-lbl">Opportunities Found</div><div class="s-val ac" id="perf-total">0</div><div class="s-sub">this session</div></div>
       <div class="s-card"><div class="s-lbl">Avg Spread APR</div><div class="s-val" id="perf-avg-apr">—</div><div class="s-sub">active pairs</div></div>
@@ -795,6 +855,7 @@
 <script src="src/js/modules/pnl.js"></script>
 <script src="src/js/modules/ai.js"></script>
 <script src="src/js/modules/arbitrage.js"></script>
+<script src="src/js/modules/crossdex.js"></script>
 <script src="src/js/modules/alerts.js"></script>
 <script src="src/js/modules/analytics.js"></script>
 <script src="src/js/modules/liquidation.js"></script>

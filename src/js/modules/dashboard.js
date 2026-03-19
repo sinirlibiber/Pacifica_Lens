@@ -34,7 +34,7 @@ document.querySelectorAll('.tab-drop-item').forEach(item => {
     // Init specific sub-pages
     if (subTabName === 'ai') updateAiContext();
     if (subTabName === 'arbitrage') {
-      setTimeout(() => { renderArbTable(); renderArbBestOpportunity(); initSpreadChart(); }, 150);
+      setTimeout(() => { renderArbTable(); renderArbBestOpportunity(); initSpreadChart(); if(typeof initCrossDex==='function') initCrossDex(); }, 150);
     }
     if (subTabName === 'orderbook') {
       initOrderbook();

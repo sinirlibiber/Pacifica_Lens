@@ -136,7 +136,7 @@ function switchTab(tabName){
     else { if(window.Chart) initCharts(); }
   },100);
   if(mainTab==='trading'){
-    if(subTab==='arbitrage'){ setTimeout(()=>{ renderArbTable(); renderArbBestOpportunity(); initSpreadChart(); },150); }
+    if(subTab==='arbitrage'){ setTimeout(()=>{ renderArbTable(); renderArbBestOpportunity(); initSpreadChart(); if(typeof initCrossDex==='function') initCrossDex(); },150); }
     if(subTab==='ai') updateAiContext();
   }
   if(mainTab==='liquidation') initLiquidation();

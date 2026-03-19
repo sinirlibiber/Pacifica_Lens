@@ -8,6 +8,7 @@
   ],
   "routes": [
     { "src": "/api/pacifica(.*)", "dest": "/api/pacifica$1" },
+    { "src": "/api/hyperliquid(/?.*)", "dest": "/api/hyperliquid.js" },
     { "src": "/api/elfa(/?.*)", "dest": "/api/elfa.js" },
     { "src": "/api/telegram(/?.*)", "dest": "/api/telegram.js" },
     { "src": "/(.*)", "dest": "/$1" }
