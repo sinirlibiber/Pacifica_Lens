@@ -99,26 +99,24 @@ function handlePrices(data){
   frEl.className='s-val '+(avgFR>=0?'gn':'rd');
 
   renderFundingTable();
-  renderHeatmap();
-  // Auto-refresh markets table if it's the active page
-  if(document.getElementById('page-markets')?.classList.contains('on')){
-    // Throttle to max once per 3 seconds
-    if(!window._mktRefreshTimer){
-      window._mktRefreshTimer = setTimeout(()=>{
-        window._mktRefreshTimer = null;
-        renderMarketsTable(document.querySelector('.mpill.on')?.dataset?.mcat||'all');
-      }, 3000);
-    }
+  // Throttle heavy DOM renders to max once per 2.5s
+  if(!window._priceRenderTimer){
+    window._priceRenderTimer = setTimeout(()=>{
+      window._priceRenderTimer = null;
+      renderHeatmap();
+      renderMarketGrid();
+      renderTicker();
+      renderAlerts();
+      renderArbBestOpportunity();
+      if(document.querySelector('#page-arbitrage.on')) renderArbTable();
+      if(document.getElementById('page-markets')?.classList.contains('on')){
+        if(typeof renderIntelFRHeatmap==='function') renderIntelFRHeatmap();
+      }
+      if(window.Chart) updateOverviewFRChart();
+      updateOverviewWhale();
+    }, 2500);
   }
-  renderMarketGrid();
-  renderTicker();
-  renderAlerts();
-  renderArbBestOpportunity();
-  if(document.querySelector('#page-arbitrage.on')) renderArbTable();
   updateWalletPnL();
-  // Overview ek paneller
-  if(window.Chart) updateOverviewFRChart();
-  updateOverviewWhale();
 }
 
 /* ── Trades ── */

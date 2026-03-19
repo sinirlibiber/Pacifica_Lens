@@ -34,7 +34,6 @@ document.querySelectorAll('.tab-drop-item').forEach(item => {
     // Init specific sub-pages
     if (subTabName === 'ai') updateAiContext();
     if (subTabName === 'arbitrage') {
-      seedMockPrices();
       setTimeout(() => { renderArbTable(); renderArbBestOpportunity(); initSpreadChart(); }, 150);
     }
     if (subTabName === 'orderbook') {
@@ -46,7 +45,6 @@ document.querySelectorAll('.tab-drop-item').forEach(item => {
     if (subTabName === 'whale') renderWhalePage();
     if (subTabName === 'liq-main') initLiquidation();
     if (subTabName === 'analytics-main') {
-      seedMockPrices();
       setTimeout(() => { if (window.Chart) initCharts(); }, 100);
     }
   });
@@ -1271,7 +1269,6 @@ document.querySelectorAll('.news-cat-pill').forEach(pill => {
     pill.classList.add('on');
     const cat = pill.dataset.cat;
     if (typeof intelNewsFilter !== 'undefined') intelNewsFilter = cat;
-    if (typeof fetchIntelNews === 'function') fetchIntelNews();
   });
 });
 

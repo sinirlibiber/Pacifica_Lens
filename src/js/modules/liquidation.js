@@ -14,15 +14,7 @@ const liqState = {
   liqInited: false,
 };
 
-const EXCHANGES = [
-  {name:'Pacifica',   color:'#58a6ff'},
-  {name:'Hyperliquid',color:'#bc8cff'},
-  {name:'Binance',    color:'#f0b90b'},
-  {name:'Bybit',      color:'#f7931a'},
-  {name:'OKX',        color:'#3fb950'},
-  {name:'Gate',       color:'#4ec9b0'},
-  {name:'Bitget',     color:'#ffa657'},
-];
+// Exchange list removed — Pacifica-only liquidation data
 
 function setLiqFeedMin(v){ liqState.feedMin=parseInt(v); renderLiqFeed(); }
 function setLiqTime(period, btn){

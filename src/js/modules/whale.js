@@ -57,9 +57,9 @@ function renderWhalePage(){
         <td class="yw" style="font-weight:700">$${fmt(r.usd)}</td>
         <td>${fmtP(r.price)}</td>
         <td>${r.isLiq?'<span class="bdg bdg-o">LIQ</span>':'<span class="bdg bdg-c">TRADE</span>'}</td>
-        <td><button class="copy-trade-btn ${isLong?'copy-long':'copy-short'}" onclick="openCopyTradeModal('${r.sym}','${r.side}',${r.usd},${r.price})">
-          ${isLong?'▲ Copy Long':'▼ Copy Short'}
-        </button></td>`;
+        <td><a class="copy-trade-btn ${isLong?'copy-long':'copy-short'}" href="https://app.pacifica.fi/trade/${r.sym}" target="_blank" rel="noopener">
+          Trade ${r.sym} ↗
+        </a></td>`;
       tbody.appendChild(tr);
     });
   }
@@ -78,8 +78,8 @@ function renderWhalePage(){
           <span class="whale-alert-size ${isLong?'gn':'rd'}">$${fmt(a.usd)}</span></div>
           <div class="whale-alert-detail">${isLong?'Large LONG':'Large SHORT'} · ${timeAgo(a.ts)}${a.isLiq?' · LIQUIDATION':''}</div>
           <button class="copy-trade-btn ${isLong?'copy-long':'copy-short'}" style="margin-top:6px;width:100%" 
-            onclick="openCopyTradeModal('${a.sym}','${a.side}',${a.usd},0)">
-            ${isLong?'▲ Copy This Long':'▼ Copy This Short'} on Pacifica
+            onclick="window.open('https://app.pacifica.fi/trade/${a.sym}','_blank')">
+            Trade ${a.sym} on Pacifica ↗
           </button>`;
         alist.appendChild(el);
       });

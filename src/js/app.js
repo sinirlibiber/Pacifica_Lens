@@ -27,7 +27,6 @@ document.querySelectorAll('.tab:not(.has-dropdown)').forEach(t=>{
 
     if(tab==='overview'){
       setTimeout(()=>{
-        seedMockPrices();
         renderAlerts();
         renderArbBestOpportunity();
         if(window.Chart) initOverviewCharts();
@@ -35,7 +34,7 @@ document.querySelectorAll('.tab:not(.has-dropdown)').forEach(t=>{
         if(typeof updateDashFRTable==='function') updateDashFRTable();
       },100);
     }
-    if(tab==='markets') initMarketsPage();
+    if(tab==='markets'){ initIntelPage(); }
     if(tab==='liquidation') initLiquidation();
   });
 });
@@ -68,9 +67,7 @@ cs.onload=()=>{
 };
 document.head.appendChild(cs);
 
-renderBotCode();
 connectWS();
-setTimeout(initMarketsPage, 200);
 setTimeout(seedMockPrices, 500);
 
 document.addEventListener('click', function(e){
@@ -135,13 +132,13 @@ function switchTab(tabName){
   if(mainTab==='analytics') setTimeout(()=>{
     if(subTab==='orderbook') initOrderbook();
     else if(subTab==='whale') renderWhalePage();
-    else { seedMockPrices(); if(window.Chart) initCharts(); }
+    else { if(window.Chart) initCharts(); }
   },100);
   if(mainTab==='trading'){
-    if(subTab==='arbitrage'){ seedMockPrices(); setTimeout(()=>{ renderArbTable(); renderArbBestOpportunity(); initSpreadChart(); },150); }
+    if(subTab==='arbitrage'){ setTimeout(()=>{ renderArbTable(); renderArbBestOpportunity(); initSpreadChart(); },150); }
     if(subTab==='ai') updateAiContext();
   }
   if(mainTab==='liquidation') initLiquidation();
-  if(mainTab==='overview'){ seedMockPrices(); setTimeout(()=>{ renderAlerts(); renderArbBestOpportunity(); if(window.Chart) initOverviewCharts(); },100); }
-  if(mainTab==='markets') initMarketsPage();
+  if(mainTab==='overview'){ setTimeout(()=>{ renderAlerts(); renderArbBestOpportunity(); if(window.Chart) initOverviewCharts(); },100); }
+  if(mainTab==='markets') initIntelPage();
 }
