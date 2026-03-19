@@ -68,44 +68,8 @@ function refreshLiqPage(){
 }
 
 function seedLiqFromPrices(){
-  // Generate realistic liquidation amounts from live price data
-  const syms = Object.keys(prices);
-  if(!syms.length) return;
-  syms.forEach(sym=>{
-    const p = prices[sym];
-    if(!liqState.sessionByMkt[sym]) liqState.sessionByMkt[sym]={long:0,short:0,count:0};
-    const s = liqState.sessionByMkt[sym];
-    // Simulate liquidation accumulation from OI and funding data
-    const baseOi = p.oi || 50000;
-    const fr = p.funding || 0;
-    const liqRate = 0.003 + Math.abs(fr)*50; // higher funding → more liq
-    const longLiq  = baseOi * liqRate * (fr > 0 ? 0.6 : 0.4) * (0.8+Math.random()*.4);
-    const shortLiq = baseOi * liqRate * (fr < 0 ? 0.6 : 0.4) * (0.8+Math.random()*.4);
-    s.long  += longLiq;
-    s.short += shortLiq;
-    s.count += Math.floor(Math.random()*5)+1;
-  });
-  // Add simulated feed events
-  if(syms.length && Math.random()>.3){
-    const sym=syms[Math.floor(Math.random()*syms.length)];
-    const isLong=Math.random()>.5;
-    const mark=prices[sym]?.mark||100;
-    const size = Math.pow(10, 2+Math.random()*3.5);
-    const ev = {sym, isLong, usd:size, price:mark*(1+(Math.random()-.5)*.002), ts:Date.now()};
-    liqState.feed.unshift(ev);
-    if(liqState.feed.length>200) liqState.feed.pop();
-    // Top 10
-    liqState.top10.push(ev);
-    liqState.top10.sort((a,b)=>b.usd-a.usd);
-    liqState.top10=liqState.top10.slice(0,10);
-    // History bucket (5min)
-    const bucket = Math.floor(Date.now()/300000)*300000;
-    let hb = liqState.history.find(h=>h.t===bucket);
-    if(!hb){ hb={t:bucket,long:0,short:0}; liqState.history.push(hb); }
-    if(isLong) hb.long+=size; else hb.short+=size;
-    renderLiqFeed();
-    renderTop10();
-  }
+  // No simulation — only real WS liquidation events populate liqState
+  // This function now just ensures FR heatmap has data from prices[]
 }
 
 // Compute totals for time periods
@@ -277,20 +241,19 @@ function renderLsRatioTable(){
 function buildLiqHistoryChart(){
   const canvas=$('liq-history-chart'); if(!canvas||!window.Chart) return;
   if(liqState.histChart){ liqState.histChart.destroy(); }
-  // Generate bucketed history data
-  const buckets=liqState.histPeriod==='1h'?12:liqState.histPeriod==='4h'?24:48;
-  const bucketMs=liqState.histPeriod==='1h'?300000:liqState.histPeriod==='4h'?600000:1800000;
-  const now=Date.now();
-  const labels=[]; const longData=[]; const shortData=[];
-  const sessionTotal=Object.values(liqState.sessionByMkt).reduce((s,v)=>s+v.long+v.short,0)||200000;
-  for(let i=buckets;i>=0;i--){
-    const t=new Date(now-i*bucketMs);
-    labels.push(t.toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'}));
-    const existing=liqState.history.find(h=>Math.abs(h.t-(now-i*bucketMs))<bucketMs);
-    const base=(sessionTotal/buckets)*(0.5+Math.random());
-    longData.push(existing?existing.long:base*(0.3+Math.random()*.4));
-    shortData.push(existing?existing.short:base*(0.3+Math.random()*.4));
+  // Use only real accumulated history buckets from WS liquidation events
+  const hist = liqState.history.sort((a,b)=>a.t-b.t);
+  if(!hist.length){
+    // No liquidation data yet — show empty state
+    const ctx=canvas.getContext('2d');
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#484f58'; ctx.font='10px monospace'; ctx.textAlign='center';
+    ctx.fillText('Waiting for liquidation events from Pacifica WS...', canvas.width/2, canvas.height/2);
+    return;
   }
+  const labels=hist.map(h=>new Date(h.t).toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'}));
+  const longData=hist.map(h=>h.long);
+  const shortData=hist.map(h=>h.short);
   liqState.histChart=new window.Chart(canvas.getContext('2d'),{
     type:'bar',
     data:{labels, datasets:[

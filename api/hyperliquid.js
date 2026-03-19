@@ -5,13 +5,14 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
-    const r = await fetch('https://api.hyperliquid.xyz/info', {
+    const fetchFn = globalThis.fetch || (await import('node-fetch')).default;
+    const r = await fetchFn('https://api.hyperliquid.xyz/info', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'metaAndAssetCtxs' }),
     });
+    if (!r.ok) return res.status(r.status).json({ error: 'HL API returned ' + r.status });
     const data = await r.json();
-    // data = [ {universe:[...], marginTables}, [{funding, markPx, openInterest, ...}, ...] ]
     const meta = data[0]?.universe || [];
     const ctxs = data[1] || [];
     const result = meta.map((m, i) => ({

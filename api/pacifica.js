@@ -25,7 +25,8 @@ export default async function handler(req, res) {
   const url = `https://api.pacifica.fi/api/v1/${path}${qs ? '?' + qs : ''}`;
 
   try {
-    const r = await fetch(url, {
+    const fetchFn = globalThis.fetch || (await import('node-fetch')).default;
+    const r = await fetchFn(url, {
       headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
     });
     const data = await r.json();

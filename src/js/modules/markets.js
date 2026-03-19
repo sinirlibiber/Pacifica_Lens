@@ -169,15 +169,16 @@ async function fetchLivePrices(){
 
 function renderMarketsTable(){}
 
-function generateSparkline(trend){
-  const pts = [];
-  let v = 50+Math.random()*20;
-  for(let i=0;i<24;i++){
-    v += (Math.random()-0.5)*8 + trend*0.3;
-    v = Math.max(10,Math.min(90,v));
-    pts.push(v);
+function generateSparkline(trend, sym){
+  // Use real accumulated price data from WS if available
+  if(sym && sparkBuf[sym] && sparkBuf[sym].length >= 5){
+    const prices_arr = sparkBuf[sym].slice(-24);
+    const min = Math.min(...prices_arr), max = Math.max(...prices_arr);
+    const range = max - min || 1;
+    return prices_arr.map(p => ((p - min) / range) * 80 + 10);
   }
-  return pts;
+  // No real data yet — return empty array (no fake data)
+  return [];
 }
 
 function miniSparkline(data,color){

@@ -168,23 +168,18 @@ async function initCoinDetailCharts(sym, coin, tf='24h'){
     console.warn('kline fetch failed for',sym,err.message);
   }
 
-  // Fallback: use sparkBuf from WebSocket or generate from current price
+  // Fallback: use sparkBuf from WebSocket if kline API failed
   if(closes.length < 5){
     if(sparkBuf[sym] && sparkBuf[sym].length > 5){
       closes = [...sparkBuf[sym]];
       labels  = closes.map((_,i)=>i.toString());
     } else {
-      // Minimal realistic fallback — use last known price + small random walk
-      const n = limit || 96;
-      const base = coin.price * (1 - coin.chg24/100);
-      const step = (coin.price - base)/n;
-      let p = base;
-      for(let i=0;i<=n;i++){
-        p += step + (Math.random()-0.49)*coin.price*0.002;
-        closes.push(Math.max(0,p));
-      }
-      closes[closes.length-1] = coin.price;
-      labels = closes.map((_,i)=>i.toString());
+      // No data available — show empty state, don't fake it
+      const ctx = priceCtx.getContext('2d');
+      ctx.clearRect(0,0,priceCtx.width,priceCtx.height);
+      ctx.fillStyle='#484f58'; ctx.font='11px monospace'; ctx.textAlign='center';
+      ctx.fillText('Waiting for price data from Pacifica...', priceCtx.width/2, priceCtx.height/2);
+      return;
     }
   }
 

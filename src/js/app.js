@@ -69,7 +69,10 @@ document.head.appendChild(cs);
 
 connectWS();
 renderBotCode();
-setTimeout(seedMockPrices, 300);
+// Fetch real prices from REST API as initial seed (async — catches its own errors)
+setTimeout(()=> seedMockPrices().catch(e=>console.warn('seed:', e.message)), 300);
+// Retry once after 3s if WS hasn't populated yet
+setTimeout(()=> seedMockPrices().catch(e=>{}), 3000);
 
 document.addEventListener('click', function(e){
   const pill = e.target.closest('.mpill');

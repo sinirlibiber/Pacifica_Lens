@@ -96,6 +96,10 @@ function initOrderbook(){
     btns.appendChild(b);
   });
   clearInterval(obTimer);
+  // Subscribe to real book data immediately
+  if(ws && ws.readyState===1){
+    ws.send(JSON.stringify({method:'subscribe',params:{source:'book',symbol:obSym,agg_level:1}}));
+  }
   renderOBFallback();
   obTimer=setInterval(renderOBFallback,2000);
   setTimeout(initObChart,300);
@@ -103,19 +107,17 @@ function initOrderbook(){
 
 function renderOBFallback(){
   const p=prices[obSym]; if(!p||!p.mark) return;
-  const mid=p.mark;
-  // Funding bias: positive funding → more ask pressure (longs paying), negative → bid pressure
-  const bias=clamp(p.funding*800,-6,6);
-  const asks=[],bids=[];
-  for(let i=0;i<20;i++){
-    const spread=0.00015*(i+1);
-    // Add slight randomness + bias for realistic look
-    const askSz=+(Math.random()*6+0.5+Math.max(0,-bias)*0.5).toFixed(4);
-    const bidSz=+(Math.random()*6+0.5+Math.max(0, bias)*0.5).toFixed(4);
-    asks.push([+(mid*(1+spread)).toFixed(p.mark>1000?2:5), askSz]);
-    bids.push([+(mid*(1-spread)).toFixed(p.mark>1000?2:5), bidSz]);
+  // Check if we have real WS book data first
+  if(obLiveData[obSym] && obLiveData[obSym].bids.length > 0){
+    renderLiveOrderbook(obSym);
+    return;
   }
-  renderOB({asks,bids});
+  // No real book data yet — subscribe and show waiting
+  if(ws && ws.readyState===1){
+    ws.send(JSON.stringify({method:'subscribe',params:{source:'book',symbol:obSym,agg_level:1}}));
+  }
+  $('ob-sym-lbl').textContent=obSym;
+  $('ob-spread').textContent='Waiting for WS book data...';
 }
 
 function renderOB(data){

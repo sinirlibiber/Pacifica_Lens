@@ -11,13 +11,36 @@ const crossDexHistory = []; // {t, bestApr, pair}
 // ── Fetch Hyperliquid data via proxy ──
 async function fetchHyperliquid(){
   try {
-    const r = await fetch('/api/hyperliquid');
-    if(!r.ok) throw new Error(r.status);
-    const data = await r.json();
+    let data = null;
+    // Try Vercel proxy first
+    try {
+      const r = await fetch('/api/hyperliquid');
+      if(r.ok) data = await r.json();
+    } catch(e){}
+    
+    // Fallback: direct Hyperliquid API (no CORS issues — they allow it)
+    if(!data || !Array.isArray(data) || !data.length){
+      const r2 = await fetch('https://api.hyperliquid.xyz/info', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({type: 'metaAndAssetCtxs'}),
+      });
+      const raw = await r2.json();
+      const meta = raw[0]?.universe || [];
+      const ctxs = raw[1] || [];
+      data = meta.map((m,i) => ({
+        coin: m.name,
+        funding: parseFloat(ctxs[i]?.funding || 0),
+        markPx: parseFloat(ctxs[i]?.markPx || 0),
+        openInterest: parseFloat(ctxs[i]?.openInterest || 0),
+        volume: parseFloat(ctxs[i]?.dayNtlVlm || 0),
+      }));
+    }
+    
     hlPrices = {};
     data.forEach(d => {
       hlPrices[d.coin] = {
-        funding: d.funding,        // per-hour rate
+        funding: d.funding,
         markPx: d.markPx,
         oi: d.openInterest * d.markPx,
         vol: d.volume,
@@ -27,6 +50,10 @@ async function fetchHyperliquid(){
     renderCrossDex();
   } catch(e){
     console.warn('Hyperliquid fetch:', e.message);
+    // Show error in UI
+    const tbody = document.getElementById('xdex-tbody');
+    if(tbody) tbody.innerHTML = `<tr><td colspan="8" style="padding:20px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--rd)">
+      Failed to fetch Hyperliquid data: ${e.message}</td></tr>`;
   }
 }
 
@@ -210,8 +237,10 @@ function updateCrossDexChart(){
 }
 
 // ── Init ──
+let _crossDexInited = false;
 function initCrossDex(){
+  if(_crossDexInited) { renderCrossDex(); return; }
+  _crossDexInited = true;
   fetchHyperliquid();
-  // Refresh every 30 seconds
   setInterval(fetchHyperliquid, 30000);
 }

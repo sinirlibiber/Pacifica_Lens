@@ -856,86 +856,60 @@ function updateGlobeNewsMarkers(items){
   overlay.innerHTML = html;
 }
 
-// ── Seed mock data for charts when WS not yet connected ────────────────
-function seedMockPrices(){
+// ── Seed prices from Pacifica REST API when WS not yet connected ────────────────
+async function seedMockPrices(){
   if(Object.keys(prices).length > 5) return; // WS already provided real data
-
-  const MOCKS = [
-    ['BTC',    95420, 0.0001,  2800000000, 0.85],
-    ['ETH',    3280,  0.00008, 980000000,  0.72],
-    ['SOL',    178,   -0.0003, 480000000,  0.68],
-    ['HYPE',   28.4,  0.00125, 185000000,  0.61],
-    ['PIPPIN', 0.062, -0.0023, 97000000,   0.55],
-    ['DOGE',   0.185, 0.00035, 320000000,  0.52],
-    ['XRP',    2.14,  0.0001,  410000000,  0.60],
-    ['BNB',    608,   0.0001,  280000000,  0.58],
-    ['AVAX',   38.2,  -0.0002, 120000000,  0.54],
-    ['LINK',   14.8,  0.00018, 145000000,  0.51],
-    ['ARB',    0.96,  -0.0001,  98000000,  0.49],
-    ['WIF',    2.18,  -0.0012,  45000000,  0.53],
-    ['FARTCOIN',0.88, 0.00089,  32000000,  0.58],
-    ['NEAR',   5.42,  0.00012,  68000000,  0.51],
-    ['TAO',    412,   -0.00015, 78000000,  0.50],
-  ];
-
-  const now = Date.now();
-  MOCKS.forEach(([sym, price, funding, vol, ls]) => {
-    prices[sym] = {
-      mark: price,
-      mid:  price * 0.9999,
-      funding: funding,
-      next_funding: funding * (1 + (Math.random()-0.5)*0.2),
-      oi:   vol * 0.08,
-      vol:  vol,
-      prev: price * (1 + (Math.random()-0.5)*0.04),
-      change: (Math.random()-0.45) * 8,
-      ts:   now,
-    };
-    lsVol[sym] = { l: ls, s: 1-ls };
-    // Seed priceHistory for sparklines
-    if(!priceHistory) window.priceHistory = {};
-    if(!priceHistory[sym]) priceHistory[sym] = [];
-    if(priceHistory[sym].length < 5){
-      for(let h=23; h>=0; h--){
-        priceHistory[sym].push({ p: price * (1 + (Math.random()-0.5)*0.03), t: now - h*3600000 });
-      }
+  try {
+    let d = null;
+    // Try via proxy first (avoids CORS)
+    try {
+      const r1 = await fetch('/api/pacifica?path=info/prices');
+      if(r1.ok) d = await r1.json();
+    } catch(e){}
+    // Fallback: direct API
+    if(!d || !d.success){
+      try {
+        const r2 = await fetch('https://api.pacifica.fi/api/v1/info/prices');
+        if(r2.ok) d = await r2.json();
+      } catch(e){}
     }
-    // Seed frHistory with 24 hours of mock data
-    if(!frHistory[sym]) frHistory[sym] = [];
-    if(frHistory[sym].length < 5){
-      for(let h = 23; h >= 0; h--){
-        frHistory[sym].push({
-          t: now - h * 3600000,
-          rate: funding + (Math.random()-0.5) * Math.abs(funding) * 0.8
-        });
-      }
+    if(!d || !d.success || !Array.isArray(d.data)) return;
+    d.data.forEach(p => {
+      const sym = p.symbol;
+      const mark = parseFloat(p.mark||0);
+      const prev = parseFloat(p.yesterday_price||p.mark||0);
+      prices[sym] = {
+        mark, price: mark,
+        mid: parseFloat(p.mid||0),
+        funding: parseFloat(p.funding||0),
+        next_funding: parseFloat(p.next_funding||0),
+        oi: parseFloat(p.open_interest||0) * mark,
+        vol: parseFloat(p.volume_24h||0),
+        prev, change: prev > 0 ? ((mark - prev) / prev * 100) : 0,
+        ts: p.timestamp,
+      };
+    });
+    // Update overview stats
+    const syms = Object.entries(prices);
+    const totalVol = syms.reduce((s,[,p])=>s+p.vol,0);
+    const totalOI = syms.reduce((s,[,p])=>s+p.oi,0);
+    const avgFR = syms.reduce((s,[,p])=>s+p.funding,0) / (syms.length||1);
+    const el = id => document.getElementById(id);
+    if(el('st-markets')) el('st-markets').textContent = syms.length;
+    if(el('st-oi'))      el('st-oi').textContent = '$' + fmt(totalOI);
+    if(el('st-vol'))     el('st-vol').textContent = '$' + fmt(totalVol);
+    if(el('st-fr')) {
+      const apr = (avgFR*3*365*100).toFixed(1)+'%';
+      el('st-fr').textContent = apr;
+      el('st-fr').className = 's-val ' + (avgFR>=0?'gn':'rd');
     }
-  });
-
-  // Update overview stats
-  const totalVol  = MOCKS.reduce((s, [,,,v]) => s+v, 0);
-  const totalOI   = MOCKS.reduce((s, [,,, v]) => s+v*0.08, 0);
-  const avgFR     = MOCKS.reduce((s, [,,f]) => s+f, 0) / MOCKS.length;
-  const el = id => document.getElementById(id);
-  if(el('st-markets')) el('st-markets').textContent = MOCKS.length;
-  if(el('st-oi'))      el('st-oi').textContent = '$' + fmt(totalOI);
-  if(el('st-vol'))     el('st-vol').textContent = '$' + fmt(totalVol);
-  if(el('st-fr')) {
-    const apr = (avgFR*3*365*100).toFixed(1)+'%';
-    el('st-fr').textContent = apr;
-    el('st-fr').className = 's-val ' + (avgFR>=0?'gn':'rd');
-  }
-
-  // Trigger UI renders
-  renderMarketGrid();
-  renderHeatmap();
-  renderFundingTable();
-  renderTicker();
-  renderAlerts();
-  renderArbBestOpportunity();
-  renderArbTable();
-  if(window.Chart) {
-    if(document.querySelector('#page-overview.on'))   initOverviewCharts();
-    if(document.querySelector('#page-analytics.on'))  initCharts();
+    renderMarketGrid();
+    renderHeatmap();
+    renderFundingTable();
+    renderTicker();
+    renderAlerts();
+    renderArbBestOpportunity();
+  } catch(e) {
+    console.warn('REST seed failed:', e.message);
   }
 }

@@ -1234,33 +1234,7 @@ function addTooltips() {
 }
 setTimeout(addTooltips, 3000);
 
-/* ── 3. Economic Calendar Mock Data ── */
-function seedCalendarMock() {
-  const cal = document.getElementById('cal-list');
-  if (!cal || !cal.querySelector('.cal-loading')) return;
-  const events = [
-    { time: '14:30', flag: '🇺🇸', title: 'US CPI (YoY)', impact: 'high', actual: '3.2%', forecast: '3.3%', prev: '3.4%' },
-    { time: '15:00', flag: '🇺🇸', title: 'Fed Interest Rate Decision', impact: 'high', actual: '—', forecast: '5.50%', prev: '5.50%' },
-    { time: '10:00', flag: '🇪🇺', title: 'ECB Press Conference', impact: 'high', actual: '—', forecast: '—', prev: '—' },
-    { time: '08:30', flag: '🇬🇧', title: 'UK GDP (QoQ)', impact: 'medium', actual: '0.1%', forecast: '0.2%', prev: '-0.1%' },
-    { time: '01:30', flag: '🇯🇵', title: 'Japan Tankan Index', impact: 'medium', actual: '12', forecast: '10', prev: '9' },
-    { time: '03:00', flag: '🇨🇳', title: 'China PMI Manufacturing', impact: 'medium', actual: '50.1', forecast: '49.8', prev: '49.5' },
-    { time: '16:00', flag: '🇺🇸', title: 'US Existing Home Sales', impact: 'low', actual: '—', forecast: '4.1M', prev: '3.95M' },
-    { time: '11:00', flag: '🇪🇺', title: 'Eurozone CPI (YoY)', impact: 'medium', actual: '2.4%', forecast: '2.5%', prev: '2.6%' },
-  ];
-  cal.innerHTML = events.map(e => {
-    const impactColor = e.impact === 'high' ? 'var(--rd)' : e.impact === 'medium' ? 'var(--yw)' : 'var(--tx3)';
-    return '<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--bd);font-family:var(--mono);font-size:10px">' +
-      '<span style="color:var(--tx3);min-width:36px">' + e.time + '</span>' +
-      '<span style="font-size:14px">' + e.flag + '</span>' +
-      '<span style="flex:1;color:var(--tx);font-weight:500">' + e.title + '</span>' +
-      '<span style="width:6px;height:6px;border-radius:50%;background:' + impactColor + ';flex-shrink:0"></span>' +
-      '<span style="min-width:40px;text-align:right;color:var(--tx)">' + e.actual + '</span>' +
-      '<span style="min-width:40px;text-align:right;color:var(--tx3)">' + e.forecast + '</span>' +
-      '</div>';
-  }).join('');
-}
-setTimeout(seedCalendarMock, 2000);
+/* ── 3. Economic Calendar — handled by intel.js renderCalendar() ── */
 
 /* ── 4. News Filter Click Handlers ── */
 document.querySelectorAll('.news-cat-pill').forEach(pill => {
